@@ -16,5 +16,14 @@ export const theme = extendTheme({
       900: "#1d0008",
     },
   },
+  components: {
+    Button: {
+      baseStyle: {
+        _hover: {
+          color: "#e85578"
+        }
+      }
+    }
+  }
 });
 //e85578

@@ -1,10 +1,8 @@
 import { Navbar } from "./Components";
 import { Box } from "@chakra-ui/react";
-import Home from "./pages/Home";
-import { Outlet, Link } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
-import { auth, firebaseConfig } from "./firebase";
-import { initializeApp } from "firebase/app";
+import { Outlet } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { AppContext } from "./context";
 
