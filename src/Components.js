@@ -48,10 +48,15 @@ import {
   Textarea,
   Collapse,
   Icon,
+  Divider,
 } from "@chakra-ui/react";
 import { AiFillStar } from "react-icons/ai";
 import { BiSearchAlt2 } from "react-icons/bi";
-import { useNavigate, NavLink as RouterNavLink } from "react-router-dom";
+import {
+  useNavigate,
+  NavLink as RouterNavLink,
+  useParams,
+} from "react-router-dom";
 import { db, auth } from "./firebase";
 import { AppContext } from "./context";
 import {
@@ -105,7 +110,7 @@ export const Navbar = (props) => {
             h="30px"
             _hover={{ cursor: "pointer" }}
             onClick={() => {
-              navigate("/");
+              navigate("/home/semua-koleksi");
             }}
           />
 
@@ -342,28 +347,25 @@ export const LogoutButton = () => {
   );
 };
 
-export const ItemsTag = (props) => {
-  return (
-    <Center>
-      <Tag size="sm" h="10px" variant="subtle" colorScheme={props.colorScheme}>
-        <TagLeftIcon boxSize="12px" />
-        <TagLabel>{props.text}</TagLabel>
-      </Tag>
-    </Center>
-  );
-};
-
 export const NewCollectionModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
-  const handleSubmit = async () => {
+  const { user } = useContext(AppContext);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  const handlePosting = async () => {
     try {
-      const docRef = await addDoc(collection(db, ""), {
-        first: "Ada",
-        last: "Lovelace",
-        born: 1815,
-      });
-      console.log("Document written with ID: ", docRef.id);
+      if (user) {
+        const docRef = await addDoc(collection(db, "article"), {
+          username: user.displayName || "",
+          uid: user.uid,
+          photoUrl: user.photoUrl || "",
+          title: title,
+          description: description,
+        });
+        console.log("Document written with ID: ", docRef.id);
+      }
     } catch (e) {
       console.error("Error adding document: ", e);
     }
@@ -407,6 +409,8 @@ export const NewCollectionModal = () => {
                   variant="unstyled"
                   placeholder="Judul Koleksi"
                   ml="10px"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
               </GridItem>
               <GridItem colSpan={1} rowSpan={1}>
@@ -417,13 +421,17 @@ export const NewCollectionModal = () => {
                   variant="unstyled"
                   placeholder="Isi Koleksi..."
                   size="sm"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </GridItem>
             </Grid>
           </DrawerHeader>
 
           <DrawerBody borderTop="1px solid gray">
-            <Button colorScheme="tomato">Posting</Button>
+            <Button colorScheme="tomato" onClick={handlePosting}>
+              Posting
+            </Button>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -432,33 +440,58 @@ export const NewCollectionModal = () => {
 };
 
 export const PilihTagMenu = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const tags = getTags();
   return (
     <>
-      <Menu>
-        <MenuButton
-          as={Button}
-          size="xs"
-          border="1px dashed gray"
-          bg="white"
-          color="gray.500"
-        >
-          Pilih tag
-        </MenuButton>
-        <MenuList fontSize="sm" overflowY="scroll" h="400px">
-          <MenuItem>Download</MenuItem>
-          <MenuItem>Create a Copy</MenuItem>
-          <MenuItem>Mark as Draft</MenuItem>
-          <MenuItem>Delete</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-          <MenuItem>Attend a Workshop</MenuItem>
-        </MenuList>
-      </Menu>
+      <Button
+        onClick={onOpen}
+        size="xs"
+        border="1px dashed gray"
+        bg="white"
+        color="gray.500"
+      >
+        Pilih Tag
+      </Button>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent overflow="hidden">
+          <ModalHeader bg="#E7EDF3" fontSize="md">
+            <Text>Pilih Tag Untuk Diskusi Anda</Text>
+            <Flex>
+              <ItemCommentTag text="Indo" colorScheme="red" />
+              <ItemCommentTag text="General" colorScheme="blue" />
+              <Divider />
+            </Flex>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={0}>
+              {tags.map((tag) => {
+                return (
+                  <>
+                    <Button variant="ghost" size="sm" my={0} w="full">
+                      <Text textTransform="capitalize" fontSize="sm">
+                        {tag.name.replaceAll("-", " ")}
+                      </Text>
+                    </Button>
+                  </>
+                );
+              })}
+            </VStack>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="tomato" mr={3} onClick={onClose} size="sm">
+              Confirm
+            </Button>
+            <Button variant="ghost" size="sm">
+              Reset
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
@@ -489,8 +522,8 @@ export const HomeSidebar = () => {
           </Button>
         </VStack>
         <VStack align="start" color="gray.400" mt="30px">
-          {tags.map((tag) => (
-            <TagLink tag={tag} />
+          {tags.map((tag, i) => (
+            <TagLink tag={tag} key={i} />
           ))}
         </VStack>
       </GridItem>
@@ -498,35 +531,47 @@ export const HomeSidebar = () => {
   );
 };
 
-export const TagLink = ({ tag }) => {
+export const TagLink = ({ tag, i }) => {
   const { isOpen, onToggle } = useDisclosure();
-  const getUrlFromTagName = (tagName) => {
-    return `/tag/${tagName.toLowerCase().replaceAll(" ", "-")}`;
-  };
   return (
     <>
-      <HStack>
+      <HStack key={i}>
         {cloneElement(tag.icon, { color: tag.color })}
         <RouterNavLink
-          to={getUrlFromTagName(tag.name)}
+          to={`/home/${tag.name}`}
           onClick={onToggle}
           style={({ isActive }) => {
             return {
               color: isActive ? tag.color : "gray",
+              fontWeight: isActive ? "bold" : "normal",
             };
           }}
         >
-          {tag.name}
+          <Text textTransform="capitalize" fontSize="sm">
+            {tag.name.replaceAll("-", " ")}
+          </Text>
         </RouterNavLink>
       </HStack>
       {tag.child.length > 0 && (
         <Collapse in={isOpen}>
           <VStack align="start" ml={3}>
-            {tag.child.map((child) => (
-              <HStack>
-                {child.icon}
-                <RouterNavLink to={getUrlFromTagName(child.name)}>
-                  {child.name}
+            {tag.child.map((child, i) => (
+              <HStack key={i}>
+                <RouterNavLink
+                  to={`/home/${child.name}`}
+                  style={({ isActive }) => {
+                    return {
+                      color: isActive ? tag.color : "gray",
+                      fontWeight: isActive ? "bold" : "normal",
+                    };
+                  }}
+                >
+                  <Flex>
+                    <Box mt={1}>{child.icon}</Box>
+                    <Text ml={2} fontSize="sm" textTransform="capitalize">
+                      {child.name}
+                    </Text>
+                  </Flex>
                 </RouterNavLink>
               </HStack>
             ))}
@@ -538,9 +583,11 @@ export const TagLink = ({ tag }) => {
 };
 
 export const HomeMain = () => {
+  let params = useParams();
   return (
     <>
       <GridItem colSpan={1}>
+        {params.tag}
         <Flex mb="20px">
           <Button color="gray.500">Terakhir</Button>
           <Spacer />
@@ -597,12 +644,23 @@ export const ItemComment = () => {
         </GridItem>
       </Grid>
       <Spacer />
-      <ItemsTag text="Indo" colorScheme="red" />
-      <ItemsTag text="General" colorScheme="blue" />
+      <ItemCommentTag text="Indo" colorScheme="red" />
+      <ItemCommentTag text="General" colorScheme="blue" />
       <HStack w="80px" ml="20px">
         <FaComment />
         <Text>10</Text>
       </HStack>
     </Flex>
+  );
+};
+
+export const ItemCommentTag = (props) => {
+  return (
+    <Center>
+      <Tag size="sm" h="10px" variant="subtle" colorScheme={props.colorScheme}>
+        <TagLeftIcon boxSize="12px" />
+        <TagLabel>{props.text}</TagLabel>
+      </Tag>
+    </Center>
   );
 };

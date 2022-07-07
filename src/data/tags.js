@@ -1,75 +1,179 @@
-import { FaGavel, FaGlobeAsia } from "react-icons/fa";
+import {
+  AiFillStar,
+  AiOutlineQuestionCircle,
+  AiOutlineShoppingCart,
+  AiOutlineTwitter,
+} from "react-icons/ai";
+import { BiShare, BiSupport, BiTestTube, BiWorld } from "react-icons/bi";
+import {
+  BsCardImage,
+  BsDiscord,
+  BsFillArchiveFill,
+  BsFillBookFill,
+  BsGenderAmbiguous,
+  BsGenderFemale,
+  BsInstagram,
+  BsKeyboard,
+  BsTelegram,
+} from "react-icons/bs";
+import {
+  FaCommentDots,
+  FaComments,
+  FaFeatherAlt,
+  FaGavel,
+  FaGlobeAsia,
+  FaHandshake,
+  FaMask,
+  FaPaintBrush,
+  FaSellcast,
+  FaSellsy,
+  FaTheaterMasks,
+} from "react-icons/fa";
 import { HiSpeakerphone } from "react-icons/hi";
-import { TbLetterC, TbLetterI, TbLetterJ, TbNotebook } from "react-icons/tb";
+import {
+  IoDiamond,
+  IoHeartCircleSharp,
+  IoLogoTiktok,
+  IoTicketSharp,
+} from "react-icons/io5";
+import {
+  TbLetterC,
+  TbLetterI,
+  TbLetterJ,
+  TbLetterK,
+  TbLetterM,
+  TbLetterV,
+  TbLivePhoto,
+  TbLiveView,
+  TbNotebook,
+  TbPropeller,
+  TbSocial,
+  TbWorld,
+} from "react-icons/tb";
 
 export const getTags = () => [
   {
-    name: "General",
-    icon: <TbNotebook />,
-    color: "#FF0000",
+    name: "general",
+    icon: <FaCommentDots />,
+    color: "#1572A1",
     child: [
-      { name: "Pengumuman", icon: <HiSpeakerphone /> },
-      { name: "Peraturan", icon: <FaGavel /> },
+      { name: "pengumuman", icon: <HiSpeakerphone /> },
+      { name: "peraturan", icon: <FaGavel /> },
     ],
   },
   {
-    name: "Koleksi Asia",
-    icon: <FaGlobeAsia />,
-    color: "#222222",
+    name: "pengetahuan",
+    icon: <TbNotebook />,
+    color: "#569CD6",
+    child: [],
+  },
+  {
+    name: "support",
+    icon: <BiSupport />,
+    color: "#569CD6",
+    child: [],
+  },
+  {
+    name: "off-topic",
+    icon: <FaComments />,
+    color: "#789395",
+    child: [],
+  },
+  {
+    name: "koleksi-vip",
+    icon: <IoDiamond />,
+    color: "#87BD6F",
+    child: [],
+  },
+  {
+    name: "koleksi-2d",
+    icon: <FaPaintBrush />,
+    color: "#5DC13B",
     child: [
-      { name: "China", icon: <TbLetterC /> },
-      { name: "Indonesia", icon: <TbLetterI /> },
-      { name: "Jepang", icon: <TbLetterJ /> },
+      { name: "hentai", icon: <FaFeatherAlt /> },
+      { name: "komik", icon: <BsFillBookFill /> },
+      { name: "wallpaper", icon: <BsCardImage /> },
     ],
   },
+  {
+    name: "koleksi-asia",
+    icon: <FaGlobeAsia />,
+    color: "#CBA412",
+    child: [
+      { name: "china", icon: <TbLetterC /> },
+      { name: "indonesia", icon: <TbLetterI /> },
+      { name: "jepang", icon: <TbLetterJ /> },
+      { name: "korea", icon: <TbLetterK /> },
+      { name: "malaysia", icon: <TbLetterM /> },
+      { name: "vietnam", icon: <TbLetterV /> },
+    ],
+  },
+  {
+    name: "koleksi-barat",
+    icon: <BiWorld />,
+    color: "#FF8C32",
+    child: [],
+  },
+  {
+    name: "koleksi-mantap",
+    icon: <BsGenderAmbiguous />,
+    color: "#FC4E4E",
+    child: [
+      { name: "cosplay", icon: <FaMask /> },
+      { name: "deepfake", icon: <FaTheaterMasks /> },
+      { name: "gravure", icon: <IoHeartCircleSharp /> },
+      { name: "onlyfans", icon: <TbPropeller /> },
+    ],
+  },
+  {
+    name: "koleksi-sexy",
+    icon: <BsGenderFemale />,
+    color: "#AA55E1",
+    child: [
+      { name: "instagram", icon: <BsInstagram /> },
+      { name: "live-streaming", icon: <TbLivePhoto /> },
+      { name: "tiktok", icon: <IoLogoTiktok /> },
+      { name: "trakteer", icon: <AiFillStar /> },
+      { name: "twitter", icon: <AiOutlineTwitter /> },
+    ],
+  },
+  {
+    name: "marketplace",
+    icon: <BiWorld />,
+    color: "#FF8C32",
+    child: [
+      { name: "wtb", icon: <AiOutlineShoppingCart /> },
+      { name: "wts", icon: <IoTicketSharp /> },
+      { name: "wta", icon: <AiOutlineQuestionCircle /> },
+    ],
+  },
+  {
+    name: "promosi",
+    icon: <BiShare />,
+    color: "#BC8F8F",
+    child: [
+      { name: "discord", icon: <BsDiscord/> },
+      { name: "social-media", icon: <TbSocial/> },
+      { name: "telegram", icon: <BsTelegram/> },
+      { name: "website", icon: <TbWorld/> },
+    ],
+  },
+  {
+    name: "request",
+    icon: <FaHandshake />,
+    color: "#456ACF",
+    child: []
+  },
+  {
+    name: "test-posting",
+    icon: <BiTestTube />,
+    color: "#B59E8C",
+    child: []
+  },
+  {
+    name: "archive",
+    icon: <BsFillArchiveFill />,
+    color: "#4E4E4E",
+    child: []
+  }
 ];
-
-/*
-
-<Button variant="link" leftIcon={<FaCommentDots />}>
-            General
-          </Button>
-          <Button variant="link" leftIcon={<TbNotebook />}>
-            Pengetahuan
-          </Button>
-          <Button variant="link" leftIcon={<BiSupport />}>
-            Support
-          </Button>
-          <Button variant="link" leftIcon={<FaComments />}>
-            Off Topic
-          </Button>
-          <Button variant="link" leftIcon={<IoDiamond />}>
-            Koleksi VIP
-          </Button>
-          <Button variant="link" leftIcon={<FaPaintBrush />}>
-            Koleksi 2D
-          </Button>
-          <Button variant="link" leftIcon={<FaGlobeAsia />}>
-            Koleksi Asia
-          </Button>
-          <Button variant="link" leftIcon={<BiWorld />}>
-            Koleksi Barat
-          </Button>
-          <Button variant="link" leftIcon={<BsGenderAmbiguous />}>
-            Koleksi Mantap
-          </Button>
-          <Button variant="link" leftIcon={<BsGenderFemale />}>
-            Koleksi Sexy
-          </Button>
-          <Button variant="link" leftIcon={<AiTwotoneShop />}>
-            Market Place
-          </Button>
-          <Button variant="link" leftIcon={<BsFillShareFill />}>
-            Promosi
-          </Button>
-          <Button variant="link" leftIcon={<FaHandshake />}>
-            Request
-          </Button>
-          <Button variant="link" leftIcon={<BiTestTube />}>
-            Test Posting
-          </Button>
-          <Button variant="link" leftIcon={<BsFillArchiveFill />}>
-            Archive
-          </Button>
-          
-*/

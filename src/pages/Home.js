@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Grid } from "@chakra-ui/react";
 import { HomeMain, HomeSidebar } from "../Components";
+import { Outlet, useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    navigate("/home/semua-koleksi")
+  
+    return () => {
+    }
+  }, [])
+  
   return (
     <Box>
       <Grid
@@ -14,7 +23,7 @@ export default function Home() {
         mt="30px"
       >
         <HomeSidebar />
-        <HomeMain />
+        <Outlet/>
       </Grid>
     </Box>
   );

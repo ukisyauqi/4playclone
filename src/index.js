@@ -7,10 +7,10 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "./theme";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Content from "./pages/Content";
-import Home from "./pages/Home"
-import NoPage from "./pages/NoPage"
+import Home from "./pages/Home";
+import NoPage from "./pages/NoPage";
 import { AppContextProvider } from "./context";
-
+import { HomeMain } from "./Components";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -20,10 +20,12 @@ root.render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />}>
-              <Route index element={<Home />}></Route>
-              <Route path="/content" element={<Content />} />
-              <Route path="*" element={<NoPage />} />
+              <Route path="home" element={<Home />}>
+                <Route path=":tag" element={<HomeMain />}/>
+              </Route>
+              <Route path="content" element={<Content />} />
             </Route>
+            <Route path="*" element={<NoPage />} />
           </Routes>
         </BrowserRouter>
       </ChakraProvider>
