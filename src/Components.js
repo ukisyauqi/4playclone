@@ -94,7 +94,15 @@ import { HiOutlineIdentification } from "react-icons/hi";
 import { TbNotebook } from "react-icons/tb";
 import { BiSupport, BiWorld, BiTestTube } from "react-icons/bi";
 import { IoDiamond } from "react-icons/io5";
-import { addDoc, collection } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  where,
+} from "firebase/firestore";
 import { getTags } from "./data/tags";
 
 export const Navbar = (props) => {
@@ -353,6 +361,7 @@ export const NewCollectionModal = () => {
   const { user } = useContext(AppContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedTags, setSelectedTags] = useState([]);
 
   const handlePosting = async () => {
     try {
@@ -363,6 +372,9 @@ export const NewCollectionModal = () => {
           photoUrl: user.photoUrl || "",
           title: title,
           description: description,
+          tag1: selectedTags[0] || "",
+          tag2: selectedTags[1] || "",
+          timeStamp: serverTimestamp(),
         });
         console.log("Document written with ID: ", docRef.id);
       }
@@ -370,6 +382,17 @@ export const NewCollectionModal = () => {
       console.error("Error adding document: ", e);
     }
   };
+
+  useEffect(() => {
+    if (isOpen) {
+      setTitle("");
+      setDescription("");
+      setSelectedTags([]);
+    } else {
+    }
+
+    return () => {};
+  }, [isOpen]);
 
   return (
     <>
@@ -402,14 +425,14 @@ export const NewCollectionModal = () => {
                 <Box rounded="full" bg="blue" h="70px" w="70px"></Box>
               </GridItem>
               <GridItem colSpan={1} rowSpan={1} display="flex">
-                <PilihTagMenu />
+                <PilihTagMenu setSelectedTags={setSelectedTags} />
                 <Input
                   type="text"
-                  w="45vw"
                   variant="unstyled"
                   placeholder="Judul Koleksi"
                   ml="10px"
                   value={title}
+                  w="30vw"
                   onChange={(e) => setTitle(e.target.value)}
                 />
               </GridItem>
@@ -439,54 +462,151 @@ export const NewCollectionModal = () => {
   );
 };
 
-export const PilihTagMenu = () => {
+export const PilihTagMenu = ({ setSelectedTags }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const tags = getTags();
+  const tags = getTags().slice(3, 14);
+  const [selectedTag, setSelectedTag] = useState(null);
+  const [selectedChild, setSelectedChild] = useState(null);
+  const [showChildTag, setShowChildTag] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShowChildTag(false);
+      setSelectedChild(null);
+      setSelectedTag(null);
+    }
+  }, [isOpen]);
+
   return (
     <>
-      <Button
-        onClick={onOpen}
-        size="xs"
-        border="1px dashed gray"
-        bg="white"
-        color="gray.500"
-      >
-        Pilih Tag
-      </Button>
+      {selectedTag === null ? (
+        <Button
+          onClick={onOpen}
+          size="xs"
+          border="1px dashed gray"
+          bg="white"
+          color="gray.500"
+        >
+          Pilih Tag
+        </Button>
+      ) : (
+        <Button onClick={onOpen} variant="unstyled">
+          <Flex>
+            {selectedTag != null && (
+              <ItemCommentTag
+                text={tags[selectedTag].name}
+                bg={tags[selectedTag].color}
+                icon={tags[selectedTag].icon}
+              />
+            )}
+            {selectedChild != null && (
+              <ItemCommentTag
+                text={tags[selectedTag].child[selectedChild].name}
+                bg={tags[selectedTag].color}
+                icon={tags[selectedTag].child[selectedChild].icon}
+              />
+            )}
+          </Flex>
+        </Button>
+      )}
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} blockScrollOnMount={false}>
         <ModalOverlay />
-        <ModalContent overflow="hidden">
-          <ModalHeader bg="#E7EDF3" fontSize="md">
+        <ModalContent overflow="hidden" position="absolute">
+          <ModalHeader bg="#E7EDF3" fontSize="md" m={0}>
             <Text>Pilih Tag Untuk Diskusi Anda</Text>
-            <Flex>
-              <ItemCommentTag text="Indo" colorScheme="red" />
-              <ItemCommentTag text="General" colorScheme="blue" />
-              <Divider />
+            <Flex h={4} mt={3}>
+              {selectedTag != null && (
+                <ItemCommentTag
+                  text={tags[selectedTag].name}
+                  bg={tags[selectedTag].color}
+                  icon={tags[selectedTag].icon}
+                />
+              )}
+              {selectedChild != null && (
+                <ItemCommentTag
+                  text={tags[selectedTag].child[selectedChild].name}
+                  bg={tags[selectedTag].color}
+                  icon={tags[selectedTag].child[selectedChild].icon}
+                />
+              )}
             </Flex>
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
-            <VStack spacing={0}>
-              {tags.map((tag) => {
-                return (
-                  <>
-                    <Button variant="ghost" size="sm" my={0} w="full">
-                      <Text textTransform="capitalize" fontSize="sm">
-                        {tag.name.replaceAll("-", " ")}
-                      </Text>
-                    </Button>
-                  </>
-                );
-              })}
-            </VStack>
+          <ModalBody p={0} m={0}>
+            {!showChildTag
+              ? tags.map((tag, i) => (
+                  <Flex
+                    key={i}
+                    color={tag.color}
+                    my={1}
+                    _hover={{ bg: "gray.100" }}
+                    py={2}
+                    px={6}
+                    cursor="pointer"
+                    bg={selectedTag === i ? "gray.100" : "whte"}
+                    onClick={() => {
+                      setSelectedTag(i);
+                      if (tag.child.length > 0) setShowChildTag(true);
+                    }}
+                  >
+                    <Box mt={1} mr={2}>
+                      {tag.icon}
+                    </Box>
+                    <Text textTransform="capitalize">
+                      {tag.name.replaceAll("-", " ")}
+                    </Text>
+                  </Flex>
+                ))
+              : tags[selectedTag].child.map((child, i) => (
+                  <Flex
+                    key={i}
+                    color={tags[selectedTag].color}
+                    my={1}
+                    _hover={{ bg: "gray.100" }}
+                    py={2}
+                    px={6}
+                    cursor="pointer"
+                    bg={selectedChild === i ? "gray.100" : "whte"}
+                    onClick={() => {
+                      setSelectedChild(i);
+                      setShowChildTag(true);
+                    }}
+                  >
+                    <Box mt={1} mr={2}>
+                      {child.icon}
+                    </Box>
+                    <Text textTransform="capitalize">
+                      {child.name.replaceAll("-", " ")}
+                    </Text>
+                  </Flex>
+                ))}
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="tomato" mr={3} onClick={onClose} size="sm">
+            <Button
+              colorScheme="tomato"
+              mr={3}
+              onClick={() => {
+                onClose();
+                setSelectedTags([
+                  tags[selectedTag]?.name,
+                  tags[selectedTag]?.child[selectedChild]?.name,
+                ]);
+              }}
+              size="sm"
+            >
               Confirm
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setShowChildTag(false);
+                setSelectedChild(null);
+                setSelectedTag(null);
+              }}
+            >
               Reset
             </Button>
           </ModalFooter>
@@ -558,7 +678,7 @@ export const TagLink = ({ tag, i }) => {
             {tag.child.map((child, i) => (
               <HStack key={i}>
                 <RouterNavLink
-                  to={`/home/${child.name}`}
+                  to={`/home/${tag.name}:${child.name}`}
                   style={({ isActive }) => {
                     return {
                       color: isActive ? tag.color : "gray",
@@ -584,25 +704,133 @@ export const TagLink = ({ tag, i }) => {
 
 export const HomeMain = () => {
   let params = useParams();
+  const [commentCardData, setCommentCardData] = useState([]);
+  useEffect(() => {
+    const tag = params.tag.split(":");
+    const q =
+      tag.length === 1
+        ? query(collection(db, "article"), where("tag1", "==", tag[0]))
+        : query(collection(db, "article"), where("tag2", "==", tag[1]));
+    const data = [];
+    const unsub = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        data.push(doc.data());
+      });
+      setCommentCardData(data);
+    });
+
+    return () => {
+      unsub();
+    };
+  }, [params.tag]);
+
   return (
     <>
       <GridItem colSpan={1}>
-        {params.tag}
         <Flex mb="20px">
           <Button color="gray.500">Terakhir</Button>
           <Spacer />
           <IconButton color="gray.500" icon={<FiRefreshCcw />} mx="10px" />
           <IconButton color="gray.500" icon={<AiOutlineCheck />} />
         </Flex>
-        <ItemComment />
-        <ItemComment />
-        <ItemComment />
-        <ItemComment />
-        <ItemComment />
-        <ItemComment />
+
+        {commentCardData.length === 0 ? (
+          <Text>Sepertinya tidak ada postingan disini</Text>
+        ) : (
+          commentCardData.map((data, i) => (
+            <Flex
+              key={i}
+              my="5px"
+              _hover={{ background: "gray.100", cursor: "pointer" }}
+              rounded="lg"
+              p="10px"
+            >
+              <Grid templateColumns="50px auto" templateRows="auto auto">
+                <GridItem
+                  colSpan={1}
+                  rowSpan={2}
+                  pr="10px"
+                  display="flex"
+                  alignItems="center"
+                >
+                  <Box
+                    rounded="full"
+                    bg="blue"
+                    w="40px"
+                    h="40px"
+                    m="auto"
+                  ></Box>
+                </GridItem>
+                <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
+                  <Text>{data.title}</Text>
+                </GridItem>
+                <GridItem colSpan={1} rowSpan={1}>
+                  <Flex color="gray">
+                    <BsFillReplyFill />
+                    <Text fontSize="sm" ml="2px" fontWeight="medium">
+                      {data.username}
+                    </Text>
+                    <Text fontSize="sm" ml="5px">
+                      {data.timeStamp && <ConvertedTime timeStamp={data.timeStamp} />}
+                    </Text>
+                  </Flex>
+                </GridItem>
+              </Grid>
+              <Spacer />
+              {data.tag1 && <ItemCommentTag text={data.tag1} />}
+              
+              <ItemCommentTag text="General" colorScheme="blue" />
+              <HStack w="80px" ml="20px">
+                <FaComment />
+                <Text>10</Text>
+              </HStack>
+            </Flex>
+          ))
+        )}
       </GridItem>
     </>
   );
+};
+
+export const ConvertedTime = ({ timeStamp }) => {
+  const [text, setText] = useState("");
+  const dataDate = timeStamp.toDate();
+
+  const data = {
+    y: dataDate.getFullYear(),
+    m: dataDate.getMonth(),
+    d: dataDate.getDay(),
+    h: dataDate.getHours(),
+    min: dataDate.getMinutes(),
+  };
+
+  useEffect(() => {
+    const renderEveryMinutes = () => {
+      const nowDate = new Date();
+      const now = {
+        y: nowDate.getFullYear(),
+        m: nowDate.getMonth(),
+        d: nowDate.getDay(),
+        h: nowDate.getHours(),
+        min: nowDate.getMinutes(),
+      };
+
+      if (data.min < now.min) setText(`berkomentar ${now.min - data.min} menit yang lalu`);
+      else if (data.h < now.h) setText(`berkomentar ${now.h - data.h} jam yang lalu`);
+      else if (data.d < now.d) setText(`berkomentar ${now.d - data.d} hari yang lalu`);
+      else if (data.m < now.m) setText(`berkomentar ${now.m - data.m} bulan yang lalu`);
+      else if (data.y < now.y) setText(`berkomentar ${now.y - data.y} tahun yang lalu`);
+    };
+
+    renderEveryMinutes();
+    const interval = setInterval(renderEveryMinutes, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  return <>{text}</>;
 };
 
 export const ItemComment = () => {
@@ -657,9 +885,18 @@ export const ItemComment = () => {
 export const ItemCommentTag = (props) => {
   return (
     <Center>
-      <Tag size="sm" h="10px" variant="subtle" colorScheme={props.colorScheme}>
-        <TagLeftIcon boxSize="12px" />
-        <TagLabel>{props.text}</TagLabel>
+      <Tag
+        size="sm"
+        h="10px"
+        variant="subtle"
+        colorScheme={props.colorScheme}
+        color="white"
+        {...props}
+      >
+        {props.icon}
+        <TagLabel ml={1} color="white">
+          {props.text}
+        </TagLabel>
       </Tag>
     </Center>
   );
