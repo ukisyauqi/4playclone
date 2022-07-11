@@ -1,4 +1,5 @@
 import {
+  AiFillAppstore,
   AiFillStar,
   AiOutlineQuestionCircle,
   AiOutlineShoppingCart,
@@ -10,10 +11,10 @@ import {
   BsDiscord,
   BsFillArchiveFill,
   BsFillBookFill,
+  BsFillReplyFill,
   BsGenderAmbiguous,
   BsGenderFemale,
   BsInstagram,
-  BsKeyboard,
   BsTelegram,
 } from "react-icons/bs";
 import {
@@ -25,11 +26,10 @@ import {
   FaHandshake,
   FaMask,
   FaPaintBrush,
-  FaSellcast,
-  FaSellsy,
+  FaRegComments,
   FaTheaterMasks,
 } from "react-icons/fa";
-import { HiSpeakerphone } from "react-icons/hi";
+import { HiOutlineIdentification, HiSpeakerphone } from "react-icons/hi";
 import {
   IoDiamond,
   IoHeartCircleSharp,
@@ -44,13 +44,30 @@ import {
   TbLetterM,
   TbLetterV,
   TbLivePhoto,
-  TbLiveView,
   TbNotebook,
   TbPropeller,
   TbSocial,
   TbWorld,
 } from "react-icons/tb";
 
+export const getTagsHead = () => [
+  {
+    name: "semua-koleksi",
+    icon: <FaRegComments />,
+  },
+  {
+    name: "private-discussion",
+    icon: <BsFillReplyFill />,
+  },
+  {
+    name: "badges",
+    icon: <HiOutlineIdentification />,
+  },
+  {
+    name: "tag",
+    icon: <AiFillAppstore />,
+  },
+];
 export const getTags = () => [
   {
     name: "general",
@@ -152,28 +169,28 @@ export const getTags = () => [
     icon: <BiShare />,
     color: "#BC8F8F",
     child: [
-      { name: "discord", icon: <BsDiscord/> },
-      { name: "social-media", icon: <TbSocial/> },
-      { name: "telegram", icon: <BsTelegram/> },
-      { name: "website", icon: <TbWorld/> },
+      { name: "discord", icon: <BsDiscord /> },
+      { name: "social-media", icon: <TbSocial /> },
+      { name: "telegram", icon: <BsTelegram /> },
+      { name: "website", icon: <TbWorld /> },
     ],
   },
   {
     name: "request",
     icon: <FaHandshake />,
     color: "#456ACF",
-    child: []
+    child: [],
   },
   {
     name: "test-posting",
     icon: <BiTestTube />,
     color: "#B59E8C",
-    child: []
+    child: [],
   },
   {
     name: "archive",
     icon: <BsFillArchiveFill />,
     color: "#4E4E4E",
-    child: []
-  }
+    child: [],
+  },
 ];

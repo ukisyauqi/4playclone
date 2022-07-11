@@ -6,11 +6,12 @@ import reportWebVitals from "./reportWebVitals";
 import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "./theme";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Content from "./pages/Content";
+import Post from "./pages/Post";
 import Home from "./pages/Home";
 import NoPage from "./pages/NoPage";
 import { AppContextProvider } from "./context";
 import { HomeMain } from "./Components";
+import ProfileSettings from "./pages/ProfileSettings";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -21,9 +22,10 @@ root.render(
           <Routes>
             <Route path="/" element={<App />}>
               <Route path="home" element={<Home />}>
-                <Route path=":tag" element={<HomeMain />}/>
+                <Route path=":tag" element={<HomeMain />} />
               </Route>
-              <Route path="content" element={<Content />} />
+              <Route path="post/:docId" element={<Post />} />
+              <Route path="settings" element={<ProfileSettings />}/>
             </Route>
             <Route path="*" element={<NoPage />} />
           </Routes>

@@ -1,7 +1,5 @@
-import React from 'react'
+import React from "react";
 
 export default function NoPage() {
-  return (
-    <div>blank</div>
-  )
+  return <div>blank</div>;
 }

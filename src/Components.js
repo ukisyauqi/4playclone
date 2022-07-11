@@ -34,27 +34,24 @@ import {
   Grid,
   GridItem,
   Tag,
-  TagLeftIcon,
   TagLabel,
   Img,
-  IconButton,
   Drawer,
-  DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
   DrawerHeader,
   DrawerBody,
-  DrawerFooter,
   Textarea,
   Collapse,
-  Icon,
-  Divider,
+  useToast,
+  MenuDivider,
 } from "@chakra-ui/react";
 import { AiFillStar } from "react-icons/ai";
-import { BiSearchAlt2 } from "react-icons/bi";
+import { BiLogOut, BiReply, BiSearchAlt2 } from "react-icons/bi";
 import {
   useNavigate,
   NavLink as RouterNavLink,
+  Link as RouterLink,
   useParams,
 } from "react-router-dom";
 import { db, auth } from "./firebase";
@@ -65,52 +62,81 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { FiRefreshCcw, FiRefreshCw } from "react-icons/fi";
-import {
-  AiOutlineCheck,
-  AiFillAppstore,
-  AiTwotoneShop,
-  AiFillPieChart,
-} from "react-icons/ai";
-import {
-  FaGavel,
-  FaComment,
-  FaRegComments,
-  FaCommentDots,
-  FaComments,
-  FaPaintBrush,
-  FaGlobeAsia,
-  FaHandshake,
-} from "react-icons/fa";
-import {
-  BsFillReplyFill,
-  BsFillRecordCircleFill,
-  BsGenderAmbiguous,
-  BsGenderFemale,
-  BsFillShareFill,
-  BsFillArchiveFill,
-} from "react-icons/bs";
-import { HiOutlineIdentification } from "react-icons/hi";
-import { TbNotebook } from "react-icons/tb";
-import { BiSupport, BiWorld, BiTestTube } from "react-icons/bi";
-import { IoDiamond } from "react-icons/io5";
+import { FiSettings } from "react-icons/fi";
+import { FaGavel } from "react-icons/fa";
+import { BsFillReplyFill, BsFillRecordCircleFill } from "react-icons/bs";
 import {
   addDoc,
   collection,
-  doc,
+  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
+  Timestamp,
   where,
 } from "firebase/firestore";
-import { getTags } from "./data/tags";
+import { getTags, getTagsHead } from "./data/tags";
 
 export const Navbar = (props) => {
   const navigate = useNavigate();
-  const { user } = useContext(AppContext);
+  const { user, setUser } = useContext(AppContext);
+  const toast = useToast();
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        setUser(null);
+        toast({
+          description: "Logout sukses",
+          duration: 2000,
+          status: "success",
+        });
+      })
+      .catch((error) => {
+        toast({
+          description: error.message,
+          duration: 2000,
+          status: "error",
+        });
+      });
+  };
+
+  const [inputSearch, setInputSearch] = useState("");
+
+  const { setMainData } = useContext(AppContext);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    // navigate("/home")
+    console.log(inputSearch);
+    try {
+      setMainData([]);
+      const q = query(
+        collection(db, "comments"),
+        where("title", "==", inputSearch)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+      });
+    } catch (e) {
+      toast({
+        description: e.message,
+        duration: 2000,
+        status: "error",
+      });
+    }
+  };
 
   return (
-    <Center w="calc(100vw - 17px)" h="50px" boxShadow="lg" {...props}>
+    <Center
+      w="calc(100vw - 17px)"
+      boxShadow="lg"
+      {...props}
+      position="fixed"
+      top="0px"
+      zIndex={99}
+      bg="white"
+    >
       <Flex w="1100px" h="50px">
         <HStack spacing={8}>
           <Img
@@ -124,55 +150,142 @@ export const Navbar = (props) => {
 
           {user && (
             <>
-              <Button variant="link" leftIcon={<FaGavel />}>
-                Peraturan
-              </Button>
-              <Button variant="link" leftIcon={<AiFillStar />}>
-                Upgrade
-              </Button>
-              <Button variant="link" leftIcon={<BsFillRecordCircleFill />}>
-                Extra
-              </Button>
+              <RouterLink to="/peraturan">
+                <Button variant="link" leftIcon={<FaGavel />}>
+                  Peraturan
+                </Button>
+              </RouterLink>
+              <RouterLink to="/upgrade">
+                <Button variant="link" leftIcon={<AiFillStar />}>
+                  Upgrade
+                </Button>
+              </RouterLink>
+              <RouterLink to="/extra">
+                <Button variant="link" leftIcon={<BsFillRecordCircleFill />}>
+                  Extra
+                </Button>
+              </RouterLink>
             </>
           )}
         </HStack>
         <Spacer />
         <HStack spacing={8}>
-          <InputGroup>
-            <InputLeftElement
-              pointerEvents="none"
-              children={<BiSearchAlt2 />}
-            />
-            <Input type="text" placeholder="Kotak Pencarian" bg="gray.100" />
-          </InputGroup>
+          <form>
+            <InputGroup mr={5} size="sm">
+              <InputLeftElement
+                pointerEvents="none"
+                children={<BiSearchAlt2 />}
+              />
+
+              <Input
+                type="text"
+                placeholder="Kotak Pencarian"
+                bg="gray.100"
+                value={inputSearch}
+                onChange={(e) => setInputSearch(e.target.value)}
+              />
+              <Input
+                type="submit"
+                onClick={handleSearch}
+                visibility="hidden"
+                position="absolute"
+              />
+            </InputGroup>
+          </form>
           {user && (
             <Menu>
-              <MenuButton as={Button}>
-                {/* left icon ^ */}
-                {user.displayName || "user"}
+              <MenuButton as={Link}>
+                <Flex position="relative">
+                  <Avatar
+                    username={user.displayName}
+                    photoURL={user.photoURL}
+                    boxSize={30}
+                    position="absolute"
+                    left="-25px"
+                  />
+                  <Text mt="3px" ml="10px">
+                    {user.displayName || "user"}
+                  </Text>
+                </Flex>
               </MenuButton>
               <MenuList>
-                <MenuItem>Download</MenuItem>
-                <MenuItem>Create a Copy</MenuItem>
-                <MenuItem>Mark as Draft</MenuItem>
-                <MenuItem>Delete</MenuItem>
-                <MenuItem>Attend a Workshop</MenuItem>
+                <RouterLink to="/settings">
+                  <MenuItem>
+                    <Flex w="full" color="gray.500">
+                      <Box pt="4px">
+                        <FiSettings />
+                      </Box>
+                      <Text pl={2} fontWeight="semibold">
+                        Profile Settings
+                      </Text>
+                    </Flex>
+                  </MenuItem>
+                </RouterLink>
+
+                <MenuDivider />
+                <MenuItem onClick={handleLogout}>
+                  <Flex w="full" color="gray.500">
+                    <Box pt="4px">
+                      <BiLogOut />
+                    </Box>
+                    <Text pl={2} fontWeight="semibold">
+                      Logout
+                    </Text>
+                  </Flex>
+                </MenuItem>
               </MenuList>
             </Menu>
           )}
           {!user && <SignupButton />}
           {!user && <LoginButton />}
-          {user && <LogoutButton />}
-          <Button
-            onClick={() => {
-              console.log(user);
-            }}
-          >
-            print user
-          </Button>
         </HStack>
       </Flex>
     </Center>
+  );
+};
+
+export const Avatar = ({ photoURL, boxSize, username, ...props }) => {
+  const colors = ["#7BDFF2", "#B2F7EF", "#EFF7F6", "#F7D6E0", "#F2B5D4"];
+  return (
+    <Box {...props}>
+      {photoURL ? (
+        <>
+          <Image
+            src={photoURL}
+            boxSize={boxSize + "px" || "40px"}
+            rounded="full"
+          />
+        </>
+      ) : (
+        <>
+          {username ? (
+            <Center
+              rounded="full"
+              w={boxSize + "px" || "40px"}
+              h={boxSize + "px" || "40px"}
+              bg={colors[(username.charCodeAt(0) % 5) - 1] || "#437F97"}
+            >
+              <Text
+                color="white"
+                textTransform="uppercase"
+                fontSize={boxSize / 2 + "px"}
+              >
+                {username[0] || ""}
+              </Text>
+            </Center>
+          ) : (
+            <>
+              <Center
+                rounded="full"
+                w={boxSize + "px" || "40px"}
+                h={boxSize + "px" || "40px"}
+                bg="#437F97"
+              ></Center>
+            </>
+          )}
+        </>
+      )}
+    </Box>
   );
 };
 
@@ -181,20 +294,26 @@ export const LoginButton = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { setUser } = useContext(AppContext);
+  const toast = useToast();
 
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setUser(userCredential.user);
+        toast({
+          description: "Login Sukses",
+          duration: 2000,
+          status: "sukses",
+        });
         onClose();
       })
       .catch((error) => {
         setUser(null);
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode);
-        console.log(errorMessage);
-        alert("login gagal");
+        toast({
+          description: error.message,
+          duration: 2000,
+          status: "error",
+        });
       });
   };
   return (
@@ -236,7 +355,6 @@ export const LoginButton = () => {
             <VStack bg="white" w="full">
               <Link color="tomato.500">Tidak ingat password?</Link>
               <Text>
-                {" "}
                 Tidak punya akun? <Link color="tomato.500">Daftar</Link>
               </Text>
             </VStack>
@@ -253,6 +371,7 @@ export const SignupButton = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const { setUser } = useContext(AppContext);
+  const toast = useToast();
 
   const handleSignup = () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -262,22 +381,30 @@ export const SignupButton = () => {
         })
           .then(() => {
             setUser(auth.currentUser);
-            alert("login sukses");
+            toast({
+              description: "Signup sukses",
+              duration: 2000,
+              status: "success",
+            });
             onClose();
           })
           .catch(() => {
             setUser(auth.currentUser);
-            alert("login sukses, username gagal");
+            toast({
+              description: "Signup sukses, username error",
+              duration: 2000,
+              status: "info",
+            });
             onClose();
           });
       })
       .catch((error) => {
         setUser(null);
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode);
-        console.log(errorMessage);
-        alert("login gagal");
+        toast({
+          description: error.message,
+          duration: 2000,
+          status: "error",
+        });
       });
   };
   return (
@@ -325,7 +452,6 @@ export const SignupButton = () => {
           <ModalFooter>
             <VStack bg="white" w="full">
               <Text>
-                {" "}
                 Sudah memiliki akun? <Link color="tomato.500">Login</Link>
               </Text>
             </VStack>
@@ -336,25 +462,6 @@ export const SignupButton = () => {
   );
 };
 
-export const LogoutButton = () => {
-  const { setUser } = useContext(AppContext);
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        setUser(null);
-        alert("logout sukses");
-      })
-      .catch((error) => {
-        alert("logout gagal");
-      });
-  };
-  return (
-    <Button onClick={handleLogout} variant="link">
-      Logout
-    </Button>
-  );
-};
-
 export const NewCollectionModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
@@ -362,31 +469,72 @@ export const NewCollectionModal = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const tags = getTags();
+  const toast = useToast();
 
   const handlePosting = async () => {
+    if (title === "") {
+      toast({
+        description: "Judul tidak boleh kosong",
+        duration: 2000,
+        status: "error",
+      });
+      return;
+    }
+    if (selectedTags.length === 0) {
+      toast({
+        description: "Tag tidak ada yang dipilih",
+        duration: 2000,
+        status: "error",
+      });
+      return;
+    }
+    if (description === "") {
+      toast({
+        description: "Deskripsi tidak boleh kosong",
+        duration: 2000,
+        status: "error",
+      });
+      return;
+    }
     try {
       if (user) {
-        const docRef = await addDoc(collection(db, "article"), {
-          username: user.displayName || "",
-          uid: user.uid,
-          photoUrl: user.photoUrl || "",
+        const docRef = await addDoc(collection(db, "comments"), {
+          ownUsername: user.displayName || "",
+          ownPhotoURL: user.photoURL || "",
+          timeStamp: serverTimestamp(),
           title: title,
-          description: description,
+          description: "{" + description + "}",
           tag1: selectedTags[0] || "",
           tag2: selectedTags[1] || "",
-          timeStamp: serverTimestamp(),
+          comment: null,
+          cUsername: null,
+          cPhotoURL: null,
+          color: tags.filter((tag) => tag.name === selectedTags[0])[0].color,
         });
         console.log("Document written with ID: ", docRef.id);
+        toast({
+          description: "Posting sukses",
+          duration: 2000,
+          status: "sukses",
+        });
+        onClose();
       }
     } catch (e) {
-      console.error("Error adding document: ", e);
+      toast({
+        description: e.message,
+        duration: 2000,
+        status: "error",
+      });
     }
   };
 
   useEffect(() => {
     if (isOpen) {
       setTitle("");
-      setDescription("");
+      setDescription(
+        '"image_url":["𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟏","𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟐"],\n"kode_koleksi":"𝐦𝐚𝐬𝐮𝐤𝐚𝐧 𝐤𝐨𝐝𝐞 𝐤𝐨𝐥𝐞𝐤𝐬𝐢",\n"info_koleksi":"𝐦𝐚𝐬𝐮𝐤𝐚𝐧 𝐢𝐧𝐟𝐨 𝐤𝐨𝐥𝐞𝐤𝐬𝐢",\n"link_download":["𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟏","𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟐"]'
+      );
       setSelectedTags([]);
     } else {
     }
@@ -422,7 +570,11 @@ export const NewCollectionModal = () => {
               w="full"
             >
               <GridItem colSpan={1} rowSpan={2}>
-                <Box rounded="full" bg="blue" h="70px" w="70px"></Box>
+                <Avatar
+                  boxSize={70}
+                  photoURL={user.photoURL}
+                  username={user.displayName}
+                />
               </GridItem>
               <GridItem colSpan={1} rowSpan={1} display="flex">
                 <PilihTagMenu setSelectedTags={setSelectedTags} />
@@ -446,6 +598,7 @@ export const NewCollectionModal = () => {
                   size="sm"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  fontFamily="monospace"
                 />
               </GridItem>
             </Grid>
@@ -462,7 +615,7 @@ export const NewCollectionModal = () => {
   );
 };
 
-export const PilihTagMenu = ({ setSelectedTags }) => {
+export const PilihTagMenu = ({ setSelectedTags, setSelectedColor }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const tags = getTags().slice(3, 14);
   const [selectedTag, setSelectedTag] = useState(null);
@@ -618,28 +771,29 @@ export const PilihTagMenu = ({ setSelectedTags }) => {
 
 export const HomeSidebar = () => {
   const tags = getTags();
+  const headTags = getTagsHead();
   return (
     <>
       <GridItem colSpan={1}>
         <NewCollectionModal />
-        <VStack align="start" color="gray.400">
-          <Button
-            variant="link"
-            colorScheme="tomato"
-            mt="20px"
-            leftIcon={<FaRegComments />}
-          >
-            Semua Koleksi
-          </Button>
-          <Button variant="link" leftIcon={<BsFillReplyFill />}>
-            Private Discussion{" "}
-          </Button>
-          <Button variant="link" leftIcon={<HiOutlineIdentification />}>
-            Badges
-          </Button>
-          <Button variant="link" leftIcon={<AiFillAppstore />}>
-            Tag
-          </Button>
+        <VStack align="start" color="gray.400" mt="20px">
+          {headTags.map((tag, i) => (
+            <HStack key={i}>
+              {cloneElement(tag.icon, { color: "#1572A1" })}
+              <RouterNavLink
+                to={`/home/${tag.name}`}
+                style={({ isActive }) => {
+                  return {
+                    fontWeight: isActive ? "bold" : "normal",
+                  };
+                }}
+              >
+                <Text textTransform="capitalize" fontSize="sm">
+                  {tag.name.replaceAll("-", " ")}
+                </Text>
+              </RouterNavLink>
+            </HStack>
+          ))}
         </VStack>
         <VStack align="start" color="gray.400" mt="30px">
           {tags.map((tag, i) => (
@@ -704,95 +858,100 @@ export const TagLink = ({ tag, i }) => {
 
 export const HomeMain = () => {
   let params = useParams();
-  const [commentCardData, setCommentCardData] = useState([]);
+  const { mainData, setMainData } = useContext(AppContext);
+
   useEffect(() => {
     const tag = params.tag.split(":");
-    const q =
-      tag.length === 1
-        ? query(collection(db, "article"), where("tag1", "==", tag[0]))
-        : query(collection(db, "article"), where("tag2", "==", tag[1]));
-    const data = [];
+    let q;
+
+    if (tag.length === 1) {
+      if (tag[0] === "semua-koleksi") q = query(collection(db, "comments"));
+      else q = query(collection(db, "comments"), where("tag1", "==", tag[0]));
+    } else q = query(collection(db, "comments"), where("tag2", "==", tag[1]));
+
     const unsub = onSnapshot(q, (querySnapshot) => {
+      setMainData([]);
       querySnapshot.forEach((doc) => {
-        data.push(doc.data());
+        setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
       });
-      setCommentCardData(data);
     });
 
     return () => {
       unsub();
     };
-  }, [params.tag]);
+  }, [params]);
 
   return (
     <>
       <GridItem colSpan={1}>
-        <Flex mb="20px">
-          <Button color="gray.500">Terakhir</Button>
-          <Spacer />
-          <IconButton color="gray.500" icon={<FiRefreshCcw />} mx="10px" />
-          <IconButton color="gray.500" icon={<AiOutlineCheck />} />
-        </Flex>
-
-        {commentCardData.length === 0 ? (
+        {mainData.length === 0 ? (
           <Text>Sepertinya tidak ada postingan disini</Text>
         ) : (
-          commentCardData.map((data, i) => (
-            <Flex
-              key={i}
-              my="5px"
-              _hover={{ background: "gray.100", cursor: "pointer" }}
-              rounded="lg"
-              p="10px"
-            >
-              <Grid templateColumns="50px auto" templateRows="auto auto">
-                <GridItem
-                  colSpan={1}
-                  rowSpan={2}
-                  pr="10px"
-                  display="flex"
-                  alignItems="center"
+          mainData
+            .sort((a, b) => {
+              if (a.timeStamp === null || b.timeStamp === null) return 0
+              return b.timeStamp.seconds - a.timeStamp.seconds;
+            })
+            .map((data, i) => (
+              <RouterLink to={`/post/${data.docId}`} key={i}>
+                <Flex
+                  my="5px"
+                  _hover={{ background: "gray.100", cursor: "pointer" }}
+                  rounded="lg"
+                  p="10px"
                 >
-                  <Box
-                    rounded="full"
-                    bg="blue"
-                    w="40px"
-                    h="40px"
-                    m="auto"
-                  ></Box>
-                </GridItem>
-                <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
-                  <Text>{data.title}</Text>
-                </GridItem>
-                <GridItem colSpan={1} rowSpan={1}>
-                  <Flex color="gray">
-                    <BsFillReplyFill />
-                    <Text fontSize="sm" ml="2px" fontWeight="medium">
-                      {data.username}
-                    </Text>
-                    <Text fontSize="sm" ml="5px">
-                      {data.timeStamp && <ConvertedTime timeStamp={data.timeStamp} />}
-                    </Text>
-                  </Flex>
-                </GridItem>
-              </Grid>
-              <Spacer />
-              {data.tag1 && <ItemCommentTag text={data.tag1} />}
-              
-              <ItemCommentTag text="General" colorScheme="blue" />
-              <HStack w="80px" ml="20px">
-                <FaComment />
-                <Text>10</Text>
-              </HStack>
-            </Flex>
-          ))
+                  <Grid templateColumns="50px auto" templateRows="auto auto">
+                    <GridItem
+                      colSpan={1}
+                      rowSpan={2}
+                      pr="10px"
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <Avatar
+                        username={data.cUsername || data.ownUsername}
+                        boxSize={40}
+                        photoURL={data.cPhotoURL}
+                      />
+                    </GridItem>
+                    <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
+                      <Text>{data.title}</Text>
+                    </GridItem>
+                    <GridItem colSpan={1} rowSpan={1}>
+                      <Flex color="gray">
+                        <BsFillReplyFill />
+                        <Text fontSize="sm" ml="2px" fontWeight="medium">
+                          {data.cUsername || data.ownUsername}
+                        </Text>
+                        <Text fontSize="sm" ml="5px" color="gray">
+                          {data.timeStamp && (
+                            <ConvertedTime
+                              timeStamp={data.timeStamp}
+                              isComment={data.cUsername}
+                            />
+                          )}
+                        </Text>
+                      </Flex>
+                    </GridItem>
+                  </Grid>
+                  <Spacer />
+                  {data.tag1 && <ItemCommentTag text={data.tag1} />}
+                  {data.tag2 && <ItemCommentTag text={data.tag2} />}
+
+                  {/* <HStack w="80px" ml="20px">
+                  <FaComment />
+                  <Text>10</Text>
+                </HStack> */}
+                </Flex>
+              </RouterLink>
+            ))
         )}
       </GridItem>
     </>
   );
 };
 
-export const ConvertedTime = ({ timeStamp }) => {
+export const ConvertedTime = ({ timeStamp, isComment }) => {
   const [text, setText] = useState("");
   const dataDate = timeStamp.toDate();
 
@@ -815,15 +974,22 @@ export const ConvertedTime = ({ timeStamp }) => {
         min: nowDate.getMinutes(),
       };
 
-      if (data.min < now.min) setText(`berkomentar ${now.min - data.min} menit yang lalu`);
-      else if (data.h < now.h) setText(`berkomentar ${now.h - data.h} jam yang lalu`);
-      else if (data.d < now.d) setText(`berkomentar ${now.d - data.d} hari yang lalu`);
-      else if (data.m < now.m) setText(`berkomentar ${now.m - data.m} bulan yang lalu`);
-      else if (data.y < now.y) setText(`berkomentar ${now.y - data.y} tahun yang lalu`);
+      const awalan = isComment ? "berkomentar" : "memposting";
+      if (data.y < now.y)
+        setText(`${awalan} ${now.y - data.y} tahun yang lalu`);
+      else if (data.m < now.m)
+        setText(`${awalan} ${now.m - data.m} bulan yang lalu`);
+      else if (data.d < now.d)
+        setText(`${awalan} ${now.d - data.d} hari yang lalu`);
+      else if (data.h < now.h)
+        setText(`${awalan} ${now.h - data.h} jam yang lalu`);
+      else if (data.min < now.min)
+        setText(`${awalan} ${now.min - data.min} menit yang lalu`);
+      else setText(`${awalan} baru saja`);
     };
 
     renderEveryMinutes();
-    const interval = setInterval(renderEveryMinutes, 5000);
+    const interval = setInterval(renderEveryMinutes, 60000);
 
     return () => {
       clearInterval(interval);
@@ -833,63 +999,16 @@ export const ConvertedTime = ({ timeStamp }) => {
   return <>{text}</>;
 };
 
-export const ItemComment = () => {
-  const navigate = useNavigate();
-  const onClickItemComment = () => {
-    navigate("/satu");
-  };
-  return (
-    <Flex
-      my="5px"
-      onClick={onClickItemComment}
-      _hover={{ background: "gray.100", cursor: "pointer" }}
-      rounded="lg"
-      p="10px"
-    >
-      <Grid templateColumns="50px auto" templateRows="auto auto">
-        <GridItem
-          colSpan={1}
-          rowSpan={2}
-          pr="10px"
-          display="flex"
-          alignItems="center"
-        >
-          <Box rounded="full" bg="blue" w="40px" h="40px" m="auto"></Box>
-        </GridItem>
-        <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
-          <Text>Alinity Twitch Streamer - OnlyFans</Text>
-        </GridItem>
-        <GridItem colSpan={1} rowSpan={1}>
-          <Flex color="gray">
-            <BsFillReplyFill />
-            <Text fontSize="sm" ml="2px">
-              Oxide666
-            </Text>
-            <Text fontSize="sm" ml="5px">
-              berkomentar 24 menit yang lalu
-            </Text>
-          </Flex>
-        </GridItem>
-      </Grid>
-      <Spacer />
-      <ItemCommentTag text="Indo" colorScheme="red" />
-      <ItemCommentTag text="General" colorScheme="blue" />
-      <HStack w="80px" ml="20px">
-        <FaComment />
-        <Text>10</Text>
-      </HStack>
-    </Flex>
-  );
-};
-
 export const ItemCommentTag = (props) => {
+  const tags = getTags();
+  const tagIndex = tags.findIndex((tag) => tag.name === props.text);
   return (
     <Center>
       <Tag
         size="sm"
         h="10px"
         variant="subtle"
-        colorScheme={props.colorScheme}
+        bg={tagIndex > 0 ? tags[tagIndex].color : "gray.300"}
         color="white"
         {...props}
       >
@@ -901,3 +1020,314 @@ export const ItemCommentTag = (props) => {
     </Center>
   );
 };
+
+export const Lorem = (props) => {
+  return (
+    <>
+      <Text>{"a".repeat(props.size)}</Text>
+    </>
+  );
+};
+
+export const ArticleComment = ({ data, key }) => {
+  return (
+    <Flex key={key} borderBottom="1px solid #ddd" py="15px">
+      <Avatar
+        username={data.cUsername}
+        boxSize="70"
+        photoURL={data.cPhotoURL}
+      />
+      <Box w="760px" ml={3}>
+        <Flex>
+          <Text fontSize="sm" fontWeight="bold" mr={2}>
+            {data.cUsername}
+          </Text>
+          <Text fontSize="sm" color="gray">
+            {data.timeStamp && (
+              <ConvertedTime
+                timeStamp={data.timeStamp}
+                isComment={data.cUsername}
+              />
+            )}
+          </Text>
+        </Flex>
+        <Text fontSize="sm" my={2}>
+          {data.comment}
+        </Text>
+      </Box>
+    </Flex>
+  );
+};
+
+export const CommentModal = ({ articleData }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = useRef();
+  const { user, setMainData } = useContext(AppContext);
+  const [comment, setComment] = useState("");
+  const toast = useToast();
+
+  const handlePosting = async () => {
+    if (comment === "") {
+      toast({
+        description: "Komen tidak boleh kosong",
+        status: "error",
+        duration: 2000,
+      });
+      return;
+    }
+    if (comment.length > 100) {
+      toast({
+        description: "Komen tidak boleh lebih dari 100 karakter",
+        status: "error",
+        duration: 2000,
+      });
+      return;
+    }
+    try {
+      if (user) {
+        const data = {
+          ownUsername: articleData.ownUsername || "",
+          ownPhotoURL: articleData.ownPhotoURL || "",
+          timeStamp: serverTimestamp(),
+          title: articleData.title,
+          description: articleData.description,
+          tag1: articleData.tag1,
+          tag2: articleData.tag2,
+          comment: comment,
+          cUsername: user.displayName || "",
+          cPhotoURL: user.photoURL || "",
+          color: articleData.color,
+        };
+        const docRef = await addDoc(collection(db, "comments"), data);
+        console.log("Document written with ID: ", docRef.id);
+        setMainData((prev) => [
+          { docId: docRef.id, ...data, timeStamp: new Timestamp() },
+          ...prev,
+        ]);
+        toast({
+          description: "komen sukses",
+          duration: 2000,
+          status: "success",
+        });
+        onClose();
+      }
+    } catch (e) {
+      toast({
+        description: e.message,
+        duration: 2000,
+        status: "error",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      setComment("");
+    } else {
+    }
+
+    return () => {};
+  }, [isOpen]);
+
+  return (
+    <>
+      <Button ref={btnRef} onClick={onOpen} colorScheme="tomato" w="full">
+        Komentar
+      </Button>
+      <Drawer
+        isOpen={isOpen}
+        placement="bottom"
+        onClose={onClose}
+        finalFocusRef={btnRef}
+        blockScrollOnMount={false}
+      >
+        <DrawerContent
+          w="68vw"
+          ml="7vw"
+          roundedTop="md"
+          border="2px solid #E45476"
+          shadow="xl"
+        >
+          <DrawerCloseButton />
+          <DrawerHeader>
+            <Grid
+              templateColumns="90px auto"
+              templateRows="35px auto"
+              h="200px"
+              w="full"
+            >
+              <GridItem colSpan={1} rowSpan={2}>
+                <Avatar
+                  username={user.displayName}
+                  photoURL={user.photoURL}
+                  boxSize={70}
+                />
+              </GridItem>
+              <GridItem colSpan={1} rowSpan={1} display="flex">
+                <BiReply />
+                <Text>{articleData.title}</Text>
+              </GridItem>
+              <GridItem colSpan={1} rowSpan={1}>
+                <Textarea
+                  type="text"
+                  w="full"
+                  minH="170px"
+                  variant="unstyled"
+                  placeholder="Tulis Komentar..."
+                  size="sm"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </GridItem>
+            </Grid>
+          </DrawerHeader>
+
+          <DrawerBody borderTop="1px solid gray">
+            <Button colorScheme="tomato" onClick={handlePosting}>
+              Posting
+            </Button>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </>
+  );
+};
+
+export const Content = ({ text, commentsData }) => {
+  const { user } = useContext(AppContext);
+  const [commented, setCommented] = useState(false);
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = null;
+  }
+
+  useEffect(() => {
+    setCommented(
+      user
+        ? commentsData.some((data) => data.cUsername === user.displayName)
+        : false
+    );
+    return () => {};
+  }, [commentsData, user]);
+
+  return (
+    <>
+      {data && (
+        <>
+          {user ? (
+            <>
+              {data.image_url.map((url, i) => (
+                <Image src={url} w="full" my={1} key={i} />
+              ))}
+            </>
+          ) : (
+            <>
+              <Center
+                w="full"
+                h="500px"
+                bg="gray.200"
+                justifyContent="space-evenly"
+              >
+                <PinkText text="Login untuk melihat gambar" />
+                <PinkText text="Login untuk melihat gambar" />
+                <PinkText text="Login untuk melihat gambar" />
+              </Center>
+            </>
+          )}
+
+          <Box borderLeft="3px solid #FF0080" roundedLeft="md" p={2} my={6}>
+            <Text fontWeight="bold" fontSize="sm">
+              Kode Koleksi
+            </Text>
+            <Text fontSize="sm">{data.kode_koleksi}</Text>
+          </Box>
+          <Box borderLeft="2px solid #0089FF" roundedLeft="md" p={2} my={6}>
+            <Text fontWeight="bold" fontSize="sm">
+              Info Koleksi
+            </Text>
+            <Text fontSize="sm">{data.info_koleksi}</Text>
+          </Box>
+
+          <Text align="center" fontSize="sm">
+            Download secara gratis di
+            <PinkText text="4Play" />- Forum yang didasarkan pada diskusi
+            tentang koleksi pribadi dan berbagi koleksi penyegar mata. <br />
+            <Text as="span" textDecoration="underline">
+              Jangan lupa untuk membagikan tautan ke teman-teman Anda!!
+            </Text>
+          </Text>
+
+          {user && commented ? (
+            <>
+              <Box borderLeft="2px solid #4AA84A" roundedLeft="md" p={2} my={6}>
+                <Text fontWeight="bold" fontSize="sm">
+                  Link Download
+                </Text>
+                {data.link_download.map((url, i) => (
+                  <div key={i}>
+                    <Link fontSize="sm" color="#FF0080" href={url}>
+                      {url}
+                    </Link>
+                  </div>
+                ))}
+              </Box>
+            </>
+          ) : (
+            <>
+              <>
+                <Box
+                  borderLeft="2px solid #4AA84A"
+                  roundedLeft="md"
+                  p={2}
+                  my={6}
+                >
+                  <Text fontWeight="bold" fontSize="sm" align="center">
+                    Anda perlu <PinkText text="komentar" />
+                    untuk melihat konten ini. Silahkan refresh halaman jika isi
+                    konten belum terbuka. <PinkText text="Upgrade Membership" />
+                    — <PinkText text="Peraturan" /> —
+                    <PinkText text="Discord Server" />
+                  </Text>
+                </Box>
+              </>
+            </>
+          )}
+          <Box
+            borderLeft="2px solid #4AA84A"
+            roundedLeft="md"
+            p={2}
+            my={6}
+            display="none"
+          >
+            <Text fontWeight="bold" fontSize="sm">
+              Link Download
+            </Text>
+            {data.link_download.map((url, i) => (
+              <div key={i}>
+                <Link fontSize="sm" color="#FF0080">
+                  {url}
+                </Link>
+              </div>
+            ))}
+          </Box>
+        </>
+      )}
+    </>
+  );
+};
+
+export const PinkText = ({ text }) => (
+  <Text
+    as="span"
+    color="#FF0080"
+    mx={1}
+    textDecoration="underline"
+    textDecorationColor="gray.200"
+    _hover={{ textDecorationColor: "#FF0080" }}
+    textUnderlineOffset="5px"
+  >
+    {text}
+  </Text>
+);

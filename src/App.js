@@ -19,8 +19,12 @@ function App() {
 
   return (
     <Box>
+      {/* <Button onClick={execute}>tweaking</Button> */}
       <Navbar />
+      <Box mt="50px">
+
       <Outlet />
+      </Box>
     </Box>
   );
 }
