@@ -33,10 +33,10 @@ import { Avatar } from "../Components";
 export default function ProfileSettings() {
   const user = getAuth().currentUser;
   const toast = useToast();
-  const [inputUsername, setInputUsername] = useState("");
-  const [inputEmail, setInputEmail] = useState("");
-  const [inputPassword, setInputPassword] = useState("");
-  const [inputConfirmPassword, setInputConfirmPassword] = useState("");
+  const [inputUsername, setInputUsername] = useState();
+  const [inputEmail, setInputEmail] = useState();
+  const [inputPassword, setInputPassword] = useState();
+  const [inputConfirmPassword, setInputConfirmPassword] = useState();
 
   const terapkanGantiUsername = () => {
     if (inputUsername === "") {
@@ -152,7 +152,7 @@ export default function ProfileSettings() {
 
   return (
     <Box>
-      {Object.keys(user).length !== 0 ? (
+      {user ? (
         <>
           <Flex w="full" bg="#8B9568" h="200px" pl="100px" alignItems="center">
             <Box border="5px solid white" rounded="full" shadow="lg">
@@ -442,9 +442,6 @@ const ModalHapusAkun = () => {
           description: `Proses gagal: ${error.message}`,
           status: "error",
         });
-      })
-      .finally(() => {
-        onClose();
       });
   };
   return (
