@@ -84,12 +84,7 @@ export const Navbar = (props) => {
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
-        setUser({});
-        toast({
-          description: "Logout sukses",
-          duration: 2000,
-          status: "success",
-        });
+        setUser(null);
       })
       .catch((error) => {
         toast({
@@ -119,11 +114,6 @@ export const Navbar = (props) => {
         setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
       });
     } catch (e) {
-      toast({
-        description: e.message,
-        duration: 2000,
-        status: "error",
-      });
     }
   };
 
@@ -141,16 +131,14 @@ export const Navbar = (props) => {
         <HStack spacing={8}>
           <Img
             src="https://i.im.ge/2022/07/11/unU5KG.th.jpg"
-            h="50px"
+            h="30px"
             _hover={{ cursor: "pointer" }}
             onClick={() => {
               navigate("/home/semua-koleksi");
             }}
-            pos="relative"
-            top="-2px"
           />
 
-          {Object.keys(user).length !== 0 && (
+          {user && (
             <>
               <RouterLink to="/peraturan">
                 <Button variant="link" leftIcon={<FaGavel />}>
@@ -194,7 +182,7 @@ export const Navbar = (props) => {
               />
             </InputGroup>
           </form>
-          {Object.keys(user).length !== 0 && (
+          {user && (
             <Menu>
               <MenuButton as={Link}>
                 <Flex position="relative">
@@ -238,8 +226,8 @@ export const Navbar = (props) => {
               </MenuList>
             </Menu>
           )}
-          {Object.keys(user).length === 0 && <SignupButton />}
-          {Object.keys(user).length === 0 && <LoginButton />}
+          {!user && <SignupButton />}
+          {!user && <LoginButton />}
         </HStack>
       </Flex>
     </Center>
@@ -301,22 +289,11 @@ export const LoginButton = () => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log(userCredential)
         setUser(userCredential.user);
-        toast({
-          description: "Login Sukses",
-          duration: 2000,
-          status: "sukses",
-        });
         onClose();
       })
       .catch((error) => {
-        setUser({});
-        toast({
-          description: error.message,
-          duration: 2000,
-          status: "error",
-        });
+        setUser(null);
       });
   };
   return (
@@ -336,14 +313,12 @@ export const LoginButton = () => {
           <ModalBody bg="gray.100">
             <VStack spacing={5} my={5}>
               <Input
-                colorScheme="tomato"
                 bg="white"
                 placeholder="Email"
                 type="email"
                 onChange={(e) => setEmail(e.target.value)}
               />
               <Input
-                colorScheme="tomato"
                 bg="white"
                 placeholder="Password"
                 type="password"
@@ -384,30 +359,15 @@ export const SignupButton = () => {
         })
           .then(() => {
             setUser(auth.currentUser);
-            toast({
-              description: "Signup sukses",
-              duration: 2000,
-              status: "success",
-            });
             onClose();
           })
           .catch(() => {
             setUser(auth.currentUser);
-            toast({
-              description: "Signup sukses, username error",
-              duration: 2000,
-              status: "info",
-            });
             onClose();
           });
       })
       .catch((error) => {
-        setUser({});
-        toast({
-          description: error.message,
-          duration: 2000,
-          status: "error",
-        });
+        setUser(null);
       });
   };
   return (
@@ -427,21 +387,18 @@ export const SignupButton = () => {
           <ModalBody bg="gray.100">
             <VStack spacing={5} my={5}>
               <Input
-                colorScheme="tomato"
                 bg="white"
                 placeholder="Username"
                 type="text"
                 onChange={(e) => setUsername(e.target.value)}
               />
               <Input
-                colorScheme="tomato"
                 bg="white"
                 placeholder="Email"
                 type="email"
                 onChange={(e) => setEmail(e.target.value)}
               />
               <Input
-                colorScheme="tomato"
                 bg="white"
                 placeholder="Password"
                 type="password"
@@ -501,7 +458,7 @@ export const NewCollectionModal = () => {
       return;
     }
     try {
-      if (Object.keys(user).length !== 0) {
+      if (user) {
         const docRef = await addDoc(collection(db, "comments"), {
           ownUsername: user.displayName || "",
           ownPhotoURL: user.photoURL || "",
@@ -516,11 +473,6 @@ export const NewCollectionModal = () => {
           color: tags.filter((tag) => tag.name === selectedTags[0])[0].color,
         });
         console.log("Document written with ID: ", docRef.id);
-        toast({
-          description: "Posting sukses",
-          duration: 2000,
-          status: "sukses",
-        });
         onClose();
       }
     } catch (e) {
@@ -547,23 +499,10 @@ export const NewCollectionModal = () => {
 
   return (
     <>
-      <Button
-        ref={btnRef}
-        onClick={() => {
-          user
-            ? onOpen()
-            : toast({
-                description: "harus login terlebih dahulu",
-                status: "warning",
-                duration: 2000,
-              });
-        }}
-        colorScheme="tomato"
-        w="full"
-      >
+      <Button ref={btnRef} onClick={onOpen} colorScheme="tomato" w="full">
         Koleksi Baru
       </Button>
-      {Object.keys(user).length !== 0 && (
+      {user && (
         <>
           <Drawer
             isOpen={isOpen}
@@ -899,7 +838,6 @@ export const HomeMain = () => {
     return () => {
       unsub();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   return (
@@ -1015,7 +953,6 @@ export const ConvertedTime = ({ timeStamp, isComment }) => {
     return () => {
       clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{text}</>;
@@ -1126,11 +1063,6 @@ export const CommentModal = ({ articleData }) => {
           { docId: docRef.id, ...data, timeStamp: new Timestamp() },
           ...prev,
         ]);
-        toast({
-          description: "komen sukses",
-          duration: 2000,
-          status: "success",
-        });
         onClose();
       }
     } catch (e) {
@@ -1153,81 +1085,64 @@ export const CommentModal = ({ articleData }) => {
 
   return (
     <>
-      <Button
-        ref={btnRef}
-        onClick={() => {
-          user
-            ? onOpen()
-            : toast({
-                description: "Harus login terlebih dahulu",
-                duration: 2000,
-                status: "warning",
-              });
-        }}
-        colorScheme="tomato"
-        w="full"
-      >
+      <Button ref={btnRef} onClick={onOpen} colorScheme="tomato" w="full">
         Komentar
       </Button>
-      {Object.keys(user).length !== 0 && (
-        <>
-          <Drawer
-            isOpen={isOpen}
-            placement="bottom"
-            onClose={onClose}
-            finalFocusRef={btnRef}
-            blockScrollOnMount={false}
-          >
-            <DrawerContent
-              w="68vw"
-              ml="7vw"
-              roundedTop="md"
-              border="2px solid #E45476"
-              shadow="xl"
+      <Drawer
+        isOpen={isOpen}
+        placement="bottom"
+        onClose={onClose}
+        finalFocusRef={btnRef}
+        blockScrollOnMount={false}
+      >
+        <DrawerContent
+          w="68vw"
+          ml="7vw"
+          roundedTop="md"
+          border="2px solid #E45476"
+          shadow="xl"
+        >
+          <DrawerCloseButton />
+          <DrawerHeader>
+            <Grid
+              templateColumns="90px auto"
+              templateRows="35px auto"
+              h="200px"
+              w="full"
             >
-              <DrawerCloseButton />
-              <DrawerHeader>
-                <Grid
-                  templateColumns="90px auto"
-                  templateRows="35px auto"
-                  h="200px"
+              <GridItem colSpan={1} rowSpan={2}>
+                <Avatar
+                  username={user.displayName}
+                  photoURL={user.photoURL}
+                  boxSize={70}
+                />
+              </GridItem>
+              <GridItem colSpan={1} rowSpan={1} display="flex">
+                <BiReply />
+                <Text>{articleData.title}</Text>
+              </GridItem>
+              <GridItem colSpan={1} rowSpan={1}>
+                <Textarea
+                  type="text"
                   w="full"
-                >
-                  <GridItem colSpan={1} rowSpan={2}>
-                    <Avatar
-                      username={user.displayName}
-                      photoURL={user.photoURL}
-                      boxSize={70}
-                    />
-                  </GridItem>
-                  <GridItem colSpan={1} rowSpan={1} display="flex">
-                    <BiReply />
-                    <Text>{articleData.title}</Text>
-                  </GridItem>
-                  <GridItem colSpan={1} rowSpan={1}>
-                    <Textarea
-                      type="text"
-                      w="full"
-                      minH="170px"
-                      variant="unstyled"
-                      placeholder="Tulis Komentar..."
-                      size="sm"
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                    />
-                  </GridItem>
-                </Grid>
-              </DrawerHeader>
+                  minH="170px"
+                  variant="unstyled"
+                  placeholder="Tulis Komentar..."
+                  size="sm"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </GridItem>
+            </Grid>
+          </DrawerHeader>
 
-              <DrawerBody borderTop="1px solid gray">
-                <Button colorScheme="tomato" onClick={handlePosting}>
-                  Posting
-                </Button>
-              </DrawerBody>
-            </DrawerContent>
-          </Drawer>
-        </>
-      )}
+          <DrawerBody borderTop="1px solid gray">
+            <Button colorScheme="tomato" onClick={handlePosting}>
+              Posting
+            </Button>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 };
@@ -1255,7 +1170,7 @@ export const Content = ({ text, commentsData }) => {
     <>
       {data && (
         <>
-          {Object.keys(user).length !== 0 ? (
+          {user ? (
             <>
               {data.image_url.map((url, i) => (
                 <Image src={url} w="full" my={1} key={i} />
@@ -1298,7 +1213,7 @@ export const Content = ({ text, commentsData }) => {
             </Text>
           </Text>
 
-          {((Object.keys(user).length !== 0) && commented) ? (
+          {user && commented ? (
             <>
               <Box borderLeft="2px solid #4AA84A" roundedLeft="md" p={2} my={6}>
                 <Text fontWeight="bold" fontSize="sm">

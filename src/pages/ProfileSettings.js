@@ -165,17 +165,7 @@ export default function ProfileSettings() {
             <Box ml={7} color="white">
               <Text fontSize="2xl" textTransform="capitalize">
                 {user.displayName}
-                <Text
-                  as="span"
-                  color={user.emailVerified ? "green.200" : "red.200"}
-                  fontSize="x-small"
-                  ml={2}
-                  position="relative"
-                  bottom="2px"
-                  textTransform="lowercase"
-                >
-                  {user.emailVerified ? "email verivied" : "email not verivied"}
-                </Text>
+
               </Text>
               <Text mt={1}>
                 Bergabung pada: {user.metadata.creationTime.slice(0, 16)}
@@ -324,19 +314,9 @@ const ModalGantiAvatar = () => {
       photoURL: inputPhotoURL,
     })
       .then(() => {
-        toast({
-          duration: 2000,
-          description: "Update photo profil berhasil",
-          status: "success",
-        });
         onClose();
       })
       .catch((error) => {
-        toast({
-          duration: 2000,
-          description: `Update photo profil gagal: ${error.message}`,
-          status: "error",
-        });
         onClose();
       });
   };
@@ -381,20 +361,12 @@ const ModalHapusAvatar = () => {
       photoURL: "",
     })
       .then(() => {
-        toast({
-          duration: 2000,
-          description: "Hapus avatar berhasil",
-          status: "success",
-        });
         onClose();
+
       })
       .catch((error) => {
-        toast({
-          duration: 2000,
-          description: `Hapus avatar gagal: ${error.message}`,
-          status: "error",
-        });
         onClose();
+
       });
   };
   return (
@@ -430,19 +402,11 @@ const ModalHapusAkun = () => {
   const terapkanHapusAkun = () => {
     deleteUser(auth.currentUser)
       .then(() => {
-        toast({
-          duration: 2000,
-          description: "Hapus akun berhasil",
-          status: "success",
-        });
       })
       .catch((error) => {
-        toast({
-          duration: 2000,
-          description: `Proses gagal: ${error.message}`,
-          status: "error",
-        });
-      });
+      }).finally(() => {
+        onClose()
+      })
   };
   return (
     <>
