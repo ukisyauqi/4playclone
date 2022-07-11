@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Box, Grid } from "@chakra-ui/react";
-import {  HomeSidebar } from "../Components";
+import { HomeSidebar } from "../Components";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 
 export default function Home() {
@@ -9,6 +9,7 @@ export default function Home() {
   useEffect(() => {
     if (!params.docId) navigate("/home/semua-koleksi");
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

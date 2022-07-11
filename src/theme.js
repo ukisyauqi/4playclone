@@ -26,4 +26,3 @@ export const theme = extendTheme({
     }
   }
 });
-//e85578

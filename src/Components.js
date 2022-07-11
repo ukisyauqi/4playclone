@@ -544,73 +544,90 @@ export const NewCollectionModal = () => {
 
   return (
     <>
-      <Button ref={btnRef} onClick={onOpen} colorScheme="tomato" w="full">
+      <Button
+        ref={btnRef}
+        onClick={() => {
+          user
+            ? onOpen()
+            : toast({
+                description: "harus login terlebih dahulu",
+                status: "warning",
+                duration: 2000,
+              });
+        }}
+        colorScheme="tomato"
+        w="full"
+      >
         Koleksi Baru
       </Button>
-      <Drawer
-        isOpen={isOpen}
-        placement="bottom"
-        onClose={onClose}
-        finalFocusRef={btnRef}
-        blockScrollOnMount={false}
-      >
-        <DrawerContent
-          w="64vw"
-          ml="26vw"
-          roundedTop="md"
-          border="2px solid #E45476"
-          shadow="xl"
-        >
-          <DrawerCloseButton />
-          <DrawerHeader>
-            <Grid
-              templateColumns="90px auto"
-              templateRows="35px auto"
-              h="200px"
-              w="full"
+      {user && (
+        <>
+          <Drawer
+            isOpen={isOpen}
+            placement="bottom"
+            onClose={onClose}
+            finalFocusRef={btnRef}
+            blockScrollOnMount={false}
+          >
+            <DrawerContent
+              w="64vw"
+              ml="26vw"
+              roundedTop="md"
+              border="2px solid #E45476"
+              shadow="xl"
             >
-              <GridItem colSpan={1} rowSpan={2}>
-                <Avatar
-                  boxSize={70}
-                  photoURL={user.photoURL}
-                  username={user.displayName}
-                />
-              </GridItem>
-              <GridItem colSpan={1} rowSpan={1} display="flex">
-                <PilihTagMenu setSelectedTags={setSelectedTags} />
-                <Input
-                  type="text"
-                  variant="unstyled"
-                  placeholder="Judul Koleksi"
-                  ml="10px"
-                  value={title}
-                  w="30vw"
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </GridItem>
-              <GridItem colSpan={1} rowSpan={1}>
-                <Textarea
-                  type="text"
+              <DrawerCloseButton />
+              <DrawerHeader>
+                <Grid
+                  templateColumns="90px auto"
+                  templateRows="35px auto"
+                  h="200px"
                   w="full"
-                  minH="170px"
-                  variant="unstyled"
-                  placeholder="Isi Koleksi..."
-                  size="sm"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  fontFamily="monospace"
-                />
-              </GridItem>
-            </Grid>
-          </DrawerHeader>
+                >
+                  <GridItem colSpan={1} rowSpan={2}>
+                    <Avatar
+                      boxSize={70}
+                      photoURL={user.photoURL}
+                      username={user.displayName}
+                    />
+                  </GridItem>
+                  <GridItem colSpan={1} rowSpan={1} display="flex">
+                    <PilihTagMenu setSelectedTags={setSelectedTags} />
+                    <Input
+                      type="text"
+                      variant="unstyled"
+                      placeholder="Judul Koleksi"
+                      ml="10px"
+                      value={title}
+                      w="30vw"
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                  </GridItem>
+                  <GridItem colSpan={1} rowSpan={1}>
+                    <Textarea
+                      type="text"
+                      w="full"
+                      minH="170px"
+                      variant="unstyled"
+                      placeholder="Isi Koleksi..."
+                      size="sm"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      fontFamily="monospace"
+                    />
+                  </GridItem>
+                </Grid>
+              </DrawerHeader>
 
-          <DrawerBody borderTop="1px solid gray">
-            <Button colorScheme="tomato" onClick={handlePosting}>
-              Posting
-            </Button>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+              <DrawerBody borderTop="1px solid gray">
+                <Button colorScheme="tomato" onClick={handlePosting}>
+                  Posting
+                </Button>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
     </>
   );
 };
@@ -879,6 +896,7 @@ export const HomeMain = () => {
     return () => {
       unsub();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   return (
@@ -889,7 +907,7 @@ export const HomeMain = () => {
         ) : (
           mainData
             .sort((a, b) => {
-              if (a.timeStamp === null || b.timeStamp === null) return 0
+              if (a.timeStamp === null || b.timeStamp === null) return 0;
               return b.timeStamp.seconds - a.timeStamp.seconds;
             })
             .map((data, i) => (
@@ -994,6 +1012,7 @@ export const ConvertedTime = ({ timeStamp, isComment }) => {
     return () => {
       clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{text}</>;
@@ -1131,64 +1150,81 @@ export const CommentModal = ({ articleData }) => {
 
   return (
     <>
-      <Button ref={btnRef} onClick={onOpen} colorScheme="tomato" w="full">
+      <Button
+        ref={btnRef}
+        onClick={() => {
+          user
+            ? onOpen()
+            : toast({
+                description: "Harus login terlebih dahulu",
+                duration: 2000,
+                status: "warning",
+              });
+        }}
+        colorScheme="tomato"
+        w="full"
+      >
         Komentar
       </Button>
-      <Drawer
-        isOpen={isOpen}
-        placement="bottom"
-        onClose={onClose}
-        finalFocusRef={btnRef}
-        blockScrollOnMount={false}
-      >
-        <DrawerContent
-          w="68vw"
-          ml="7vw"
-          roundedTop="md"
-          border="2px solid #E45476"
-          shadow="xl"
-        >
-          <DrawerCloseButton />
-          <DrawerHeader>
-            <Grid
-              templateColumns="90px auto"
-              templateRows="35px auto"
-              h="200px"
-              w="full"
+      {user && (
+        <>
+          <Drawer
+            isOpen={isOpen}
+            placement="bottom"
+            onClose={onClose}
+            finalFocusRef={btnRef}
+            blockScrollOnMount={false}
+          >
+            <DrawerContent
+              w="68vw"
+              ml="7vw"
+              roundedTop="md"
+              border="2px solid #E45476"
+              shadow="xl"
             >
-              <GridItem colSpan={1} rowSpan={2}>
-                <Avatar
-                  username={user.displayName}
-                  photoURL={user.photoURL}
-                  boxSize={70}
-                />
-              </GridItem>
-              <GridItem colSpan={1} rowSpan={1} display="flex">
-                <BiReply />
-                <Text>{articleData.title}</Text>
-              </GridItem>
-              <GridItem colSpan={1} rowSpan={1}>
-                <Textarea
-                  type="text"
+              <DrawerCloseButton />
+              <DrawerHeader>
+                <Grid
+                  templateColumns="90px auto"
+                  templateRows="35px auto"
+                  h="200px"
                   w="full"
-                  minH="170px"
-                  variant="unstyled"
-                  placeholder="Tulis Komentar..."
-                  size="sm"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                />
-              </GridItem>
-            </Grid>
-          </DrawerHeader>
+                >
+                  <GridItem colSpan={1} rowSpan={2}>
+                    <Avatar
+                      username={user.displayName}
+                      photoURL={user.photoURL}
+                      boxSize={70}
+                    />
+                  </GridItem>
+                  <GridItem colSpan={1} rowSpan={1} display="flex">
+                    <BiReply />
+                    <Text>{articleData.title}</Text>
+                  </GridItem>
+                  <GridItem colSpan={1} rowSpan={1}>
+                    <Textarea
+                      type="text"
+                      w="full"
+                      minH="170px"
+                      variant="unstyled"
+                      placeholder="Tulis Komentar..."
+                      size="sm"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                    />
+                  </GridItem>
+                </Grid>
+              </DrawerHeader>
 
-          <DrawerBody borderTop="1px solid gray">
-            <Button colorScheme="tomato" onClick={handlePosting}>
-              Posting
-            </Button>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+              <DrawerBody borderTop="1px solid gray">
+                <Button colorScheme="tomato" onClick={handlePosting}>
+                  Posting
+                </Button>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
     </>
   );
 };

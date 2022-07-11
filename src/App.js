@@ -8,22 +8,21 @@ import { AppContext } from "./context";
 
 function App() {
   const { setUser } = useContext(AppContext);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       user ? setUser(user) : setUser(null);
     });
-    navigate("/home")
+    navigate("/home");
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <Box>
-      {/* <Button onClick={execute}>tweaking</Button> */}
       <Navbar />
       <Box mt="50px">
-
-      <Outlet />
+        <Outlet />
       </Box>
     </Box>
   );
