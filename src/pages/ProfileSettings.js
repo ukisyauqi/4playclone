@@ -152,7 +152,7 @@ export default function ProfileSettings() {
 
   return (
     <Box>
-      {user ? (
+      {Object.keys(user).length !== 0 ? (
         <>
           <Flex w="full" bg="#8B9568" h="200px" pl="100px" alignItems="center">
             <Box border="5px solid white" rounded="full" shadow="lg">

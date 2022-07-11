@@ -84,7 +84,7 @@ export const Navbar = (props) => {
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
-        setUser(null);
+        setUser({});
         toast({
           description: "Logout sukses",
           duration: 2000,
@@ -135,20 +135,22 @@ export const Navbar = (props) => {
       position="fixed"
       top="0px"
       zIndex={99}
-      bg="white"
+      bg="#F7F7F7"
     >
       <Flex w="1100px" h="50px">
         <HStack spacing={8}>
           <Img
-            src="https://4play.to/assets/logo.png"
-            h="30px"
+            src="https://i.im.ge/2022/07/11/unU5KG.th.jpg"
+            h="50px"
             _hover={{ cursor: "pointer" }}
             onClick={() => {
               navigate("/home/semua-koleksi");
             }}
+            pos="relative"
+            top="-2px"
           />
 
-          {user && (
+          {Object.keys(user).length !== 0 && (
             <>
               <RouterLink to="/peraturan">
                 <Button variant="link" leftIcon={<FaGavel />}>
@@ -192,7 +194,7 @@ export const Navbar = (props) => {
               />
             </InputGroup>
           </form>
-          {user && (
+          {Object.keys(user).length !== 0 && (
             <Menu>
               <MenuButton as={Link}>
                 <Flex position="relative">
@@ -236,8 +238,8 @@ export const Navbar = (props) => {
               </MenuList>
             </Menu>
           )}
-          {!user && <SignupButton />}
-          {!user && <LoginButton />}
+          {Object.keys(user).length === 0 && <SignupButton />}
+          {Object.keys(user).length === 0 && <LoginButton />}
         </HStack>
       </Flex>
     </Center>
@@ -299,6 +301,7 @@ export const LoginButton = () => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        console.log(userCredential)
         setUser(userCredential.user);
         toast({
           description: "Login Sukses",
@@ -308,7 +311,7 @@ export const LoginButton = () => {
         onClose();
       })
       .catch((error) => {
-        setUser(null);
+        setUser({});
         toast({
           description: error.message,
           duration: 2000,
@@ -399,7 +402,7 @@ export const SignupButton = () => {
           });
       })
       .catch((error) => {
-        setUser(null);
+        setUser({});
         toast({
           description: error.message,
           duration: 2000,
@@ -498,7 +501,7 @@ export const NewCollectionModal = () => {
       return;
     }
     try {
-      if (user) {
+      if (Object.keys(user).length !== 0) {
         const docRef = await addDoc(collection(db, "comments"), {
           ownUsername: user.displayName || "",
           ownPhotoURL: user.photoURL || "",
@@ -560,7 +563,7 @@ export const NewCollectionModal = () => {
       >
         Koleksi Baru
       </Button>
-      {user && (
+      {Object.keys(user).length !== 0 && (
         <>
           <Drawer
             isOpen={isOpen}
@@ -1166,7 +1169,7 @@ export const CommentModal = ({ articleData }) => {
       >
         Komentar
       </Button>
-      {user && (
+      {Object.keys(user).length !== 0 && (
         <>
           <Drawer
             isOpen={isOpen}
@@ -1252,7 +1255,7 @@ export const Content = ({ text, commentsData }) => {
     <>
       {data && (
         <>
-          {user ? (
+          {Object.keys(user).length !== 0 ? (
             <>
               {data.image_url.map((url, i) => (
                 <Image src={url} w="full" my={1} key={i} />
@@ -1295,7 +1298,7 @@ export const Content = ({ text, commentsData }) => {
             </Text>
           </Text>
 
-          {user && commented ? (
+          {((Object.keys(user).length !== 0) && commented) ? (
             <>
               <Box borderLeft="2px solid #4AA84A" roundedLeft="md" p={2} my={6}>
                 <Text fontWeight="bold" fontSize="sm">

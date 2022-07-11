@@ -11,7 +11,7 @@ function App() {
   const navigate = useNavigate();
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      user ? setUser(user) : setUser(null);
+      Object.keys(user).length !== 0 ? setUser(user) : setUser({});
     });
     navigate("/home");
     return () => {};
