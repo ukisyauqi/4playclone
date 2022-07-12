@@ -1,8 +1,14 @@
 import { Box, Center, Flex, Tag, TagLabel, Text } from "@chakra-ui/react";
 
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { ArticleComment, Avatar, CommentModal, Content } from "../Components";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import {
+  ArticleComment,
+  Avatar,
+  CommentModal,
+  Content,
+  createMarkupAdsLandscape,
+} from "../Components";
 import { AppContext } from "../context";
 
 export default function Post() {
@@ -11,6 +17,7 @@ export default function Post() {
   const { mainData } = useContext(AppContext);
   const [articleData, setArticleData] = useState({});
   const [commentsData, setCommentsData] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const article = mainData.filter((data) => data.docId === params.docId)[0];
@@ -23,12 +30,16 @@ export default function Post() {
   }, [mainData, params]);
 
   useEffect(() => {
+    if (!articleData) {
+      alert("data tidak ada");
+      navigate("/home/semua-koleksi");
+    }
     return () => {};
   }, []);
 
   return (
     <>
-      <Center h="140px" bg={articleData.color} mb="30px">
+      <Center h="140px" bg={articleData.color || "#FF0080"}>
         <Box>
           <Center>
             <Tag size="sm" h="10px" variant="subtle" bg={"white"}>
@@ -49,7 +60,12 @@ export default function Post() {
           </Text>
         </Box>
       </Center>
-      <Flex justifyContent="center">
+      <Center>
+        <Box w="1050px" h="90px" bg="gray.100">
+          <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div>
+        </Box>
+      </Center>
+      <Flex justifyContent="center" mt="30px">
         <Box pb={10}>
           <Flex borderBottom="1px solid #ddd" pb="15px">
             <Avatar

@@ -102,7 +102,7 @@ export const Navbar = (props) => {
   const handleSearch = async (e) => {
     e.preventDefault();
     // navigate("/home")
-    console.log(inputSearch);
+    if (inputSearch === "") navigate("/home/semua-koleksi");
     try {
       setMainData([]);
       const q = query(
@@ -113,8 +113,7 @@ export const Navbar = (props) => {
       querySnapshot.forEach((doc) => {
         setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
       });
-    } catch (e) {
-    }
+    } catch (e) {}
   };
 
   return (
@@ -173,6 +172,7 @@ export const Navbar = (props) => {
                 bg="gray.100"
                 value={inputSearch}
                 onChange={(e) => setInputSearch(e.target.value)}
+                autoComplete="off"
               />
               <Input
                 type="submit"
@@ -329,14 +329,6 @@ export const LoginButton = () => {
               </Button>
             </VStack>
           </ModalBody>
-          <ModalFooter>
-            <VStack bg="white" w="full">
-              <Link color="tomato.500">Tidak ingat password?</Link>
-              <Text>
-                Tidak punya akun? <Link color="tomato.500">Daftar</Link>
-              </Text>
-            </VStack>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
@@ -409,13 +401,6 @@ export const SignupButton = () => {
               </Button>
             </VStack>
           </ModalBody>
-          <ModalFooter>
-            <VStack bg="white" w="full">
-              <Text>
-                Sudah memiliki akun? <Link color="tomato.500">Login</Link>
-              </Text>
-            </VStack>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
@@ -499,7 +484,20 @@ export const NewCollectionModal = () => {
 
   return (
     <>
-      <Button ref={btnRef} onClick={onOpen} colorScheme="tomato" w="full">
+      <Button
+        ref={btnRef}
+        onClick={() => {
+          user
+            ? onOpen()
+            : toast({
+                description: "Anda harus login terlebih dahulu",
+                status: "error",
+                duration: 2000,
+              });
+        }}
+        colorScheme="tomato"
+        w="full"
+      >
         Koleksi Baru
       </Button>
       {user && (
@@ -735,7 +733,7 @@ export const HomeSidebar = () => {
     <>
       <GridItem colSpan={1}>
         <NewCollectionModal />
-        <VStack align="start" color="gray.400" mt="20px">
+        <VStack align="start" color="gray.500" mt="20px">
           {headTags.map((tag, i) => (
             <HStack key={i}>
               {cloneElement(tag.icon, { color: "#1572A1" })}
@@ -759,6 +757,9 @@ export const HomeSidebar = () => {
             <TagLink tag={tag} key={i} />
           ))}
         </VStack>
+        <Box w="160px" h="600px" bg="gray.100" my="20px">
+          <div dangerouslySetInnerHTML={createMarkuoAdsPotrait()}></div>
+        </Box>
       </GridItem>
     </>
   );
@@ -846,69 +847,115 @@ export const HomeMain = () => {
         {mainData.length === 0 ? (
           <Text>Sepertinya tidak ada postingan disini</Text>
         ) : (
-          mainData
-            .sort((a, b) => {
-              if (a.timeStamp === null || b.timeStamp === null) return 0;
-              return b.timeStamp.seconds - a.timeStamp.seconds;
-            })
-            .map((data, i) => (
-              <RouterLink to={`/post/${data.docId}`} key={i}>
-                <Flex
-                  my="5px"
-                  _hover={{ background: "gray.100", cursor: "pointer" }}
-                  rounded="lg"
-                  p="10px"
-                >
-                  <Grid templateColumns="50px auto" templateRows="auto auto">
-                    <GridItem
-                      colSpan={1}
-                      rowSpan={2}
-                      pr="10px"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      <Avatar
-                        username={data.cUsername || data.ownUsername}
-                        boxSize={40}
-                        photoURL={data.cPhotoURL}
-                      />
-                    </GridItem>
-                    <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
-                      <Text>{data.title}</Text>
-                    </GridItem>
-                    <GridItem colSpan={1} rowSpan={1}>
-                      <Flex color="gray">
-                        <BsFillReplyFill />
-                        <Text fontSize="sm" ml="2px" fontWeight="medium">
-                          {data.cUsername || data.ownUsername}
-                        </Text>
-                        <Text fontSize="sm" ml="5px" color="gray">
-                          {data.timeStamp && (
-                            <ConvertedTime
-                              timeStamp={data.timeStamp}
-                              isComment={data.cUsername}
-                            />
-                          )}
-                        </Text>
-                      </Flex>
-                    </GridItem>
-                  </Grid>
-                  <Spacer />
-                  {data.tag1 && <ItemCommentTag text={data.tag1} />}
-                  {data.tag2 && <ItemCommentTag text={data.tag2} />}
-
-                  {/* <HStack w="80px" ml="20px">
-                  <FaComment />
-                  <Text>10</Text>
-                </HStack> */}
-                </Flex>
-              </RouterLink>
-            ))
+          <>
+            <Box w="full" h="90px" bg="gray.100">
+              <div dangerouslySetInnerHTML={createMarkupAdsLandscape()} />
+            </Box>
+            {mainData
+              .sort((a, b) => {
+                if (a.timeStamp === null || b.timeStamp === null) return 0;
+                return b.timeStamp.seconds - a.timeStamp.seconds;
+              })
+              .map((data, i) => (
+                <RouterLink to={`/post/${data.docId}`} key={i}>
+                  <Flex
+                    my="5px"
+                    _hover={{ background: "gray.100", cursor: "pointer" }}
+                    rounded="lg"
+                    p="10px"
+                  >
+                    <Grid templateColumns="50px auto" templateRows="auto auto">
+                      <GridItem
+                        colSpan={1}
+                        rowSpan={2}
+                        pr="10px"
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <Avatar
+                          username={data.cUsername || data.ownUsername}
+                          boxSize={40}
+                          photoURL={data.cPhotoURL}
+                        />
+                      </GridItem>
+                      <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
+                        <Text>{data.title}</Text>
+                      </GridItem>
+                      <GridItem colSpan={1} rowSpan={1}>
+                        <Flex color="gray">
+                          <BsFillReplyFill />
+                          <Text fontSize="sm" ml="2px" fontWeight="medium">
+                            {data.cUsername || data.ownUsername}
+                          </Text>
+                          <Text fontSize="sm" ml="5px" color="gray">
+                            {data.timeStamp && (
+                              <ConvertedTime
+                                timeStamp={data.timeStamp}
+                                isComment={data.cUsername}
+                              />
+                            )}
+                          </Text>
+                        </Flex>
+                      </GridItem>
+                    </Grid>
+                    <Spacer />
+                    {data.tag1 && <ItemCommentTag text={data.tag1} />}
+                    {data.tag2 && <ItemCommentTag text={data.tag2} />}
+                  </Flex>
+                </RouterLink>
+              ))}
+          </>
         )}
       </GridItem>
     </>
   );
 };
+
+export function createMarkupAdsLandscape() {
+  return {
+    __html: `
+  <script type="text/javascript">
+      atOptions = {
+        key: "26507da9a27a8f369127a371abf7994e",
+        format: "iframe",
+        height: 90,
+        width: 728,
+        params: {},
+      };
+      document.write(
+        "<scr" +
+          'ipt type="text/javascript" src="http' +
+          (location.protocol === "https:" ? "s" : "") +
+          '://www.topdisplayformat.com/26507da9a27a8f369127a371abf7994e/invoke.js"></scr' +
+          "ipt>"
+      );
+    </script>
+  `,
+  };
+}
+
+export function createMarkuoAdsPotrait() {
+  return {
+    __html: `
+  <script type="text/javascript">
+      atOptions = {
+        key: "b9aed9c49bcbdeeb04cb6edd92bc5911",
+        format: "iframe",
+        height: 600,
+        width: 160,
+        params: {},
+      };
+      document.write(
+        "<scr" +
+          'ipt type="text/javascript" src="http' +
+          (location.protocol === "https:" ? "s" : "") +
+          '://www.topdisplayformat.com/b9aed9c49bcbdeeb04cb6edd92bc5911/invoke.js"></scr' +
+          "ipt>"
+      );
+    </script>
+  `,
+  };
+}
 
 export const ConvertedTime = ({ timeStamp, isComment }) => {
   const [text, setText] = useState("");
@@ -1085,64 +1132,81 @@ export const CommentModal = ({ articleData }) => {
 
   return (
     <>
-      <Button ref={btnRef} onClick={onOpen} colorScheme="tomato" w="full">
+      <Button
+        ref={btnRef}
+        onClick={() => {
+          user
+            ? onOpen()
+            : toast({
+                description: "Anda harus login terlebih dahulu",
+                status: "error",
+                duration: 2000,
+              });
+        }}
+        colorScheme="tomato"
+        w="full"
+      >
         Komentar
       </Button>
-      <Drawer
-        isOpen={isOpen}
-        placement="bottom"
-        onClose={onClose}
-        finalFocusRef={btnRef}
-        blockScrollOnMount={false}
-      >
-        <DrawerContent
-          w="68vw"
-          ml="7vw"
-          roundedTop="md"
-          border="2px solid #E45476"
-          shadow="xl"
-        >
-          <DrawerCloseButton />
-          <DrawerHeader>
-            <Grid
-              templateColumns="90px auto"
-              templateRows="35px auto"
-              h="200px"
-              w="full"
+      {user && (
+        <>
+          <Drawer
+            isOpen={isOpen}
+            placement="bottom"
+            onClose={onClose}
+            finalFocusRef={btnRef}
+            blockScrollOnMount={false}
+          >
+            <DrawerContent
+              w="68vw"
+              ml="7vw"
+              roundedTop="md"
+              border="2px solid #E45476"
+              shadow="xl"
             >
-              <GridItem colSpan={1} rowSpan={2}>
-                <Avatar
-                  username={user.displayName}
-                  photoURL={user.photoURL}
-                  boxSize={70}
-                />
-              </GridItem>
-              <GridItem colSpan={1} rowSpan={1} display="flex">
-                <BiReply />
-                <Text>{articleData.title}</Text>
-              </GridItem>
-              <GridItem colSpan={1} rowSpan={1}>
-                <Textarea
-                  type="text"
+              <DrawerCloseButton />
+              <DrawerHeader>
+                <Grid
+                  templateColumns="90px auto"
+                  templateRows="35px auto"
+                  h="200px"
                   w="full"
-                  minH="170px"
-                  variant="unstyled"
-                  placeholder="Tulis Komentar..."
-                  size="sm"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                />
-              </GridItem>
-            </Grid>
-          </DrawerHeader>
+                >
+                  <GridItem colSpan={1} rowSpan={2}>
+                    <Avatar
+                      username={user.displayName}
+                      photoURL={user.photoURL}
+                      boxSize={70}
+                    />
+                  </GridItem>
+                  <GridItem colSpan={1} rowSpan={1} display="flex">
+                    <BiReply />
+                    <Text>{articleData.title}</Text>
+                  </GridItem>
+                  <GridItem colSpan={1} rowSpan={1}>
+                    <Textarea
+                      type="text"
+                      w="full"
+                      minH="170px"
+                      variant="unstyled"
+                      placeholder="Tulis Komentar..."
+                      size="sm"
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                    />
+                  </GridItem>
+                </Grid>
+              </DrawerHeader>
 
-          <DrawerBody borderTop="1px solid gray">
-            <Button colorScheme="tomato" onClick={handlePosting}>
-              Posting
-            </Button>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+              <DrawerBody borderTop="1px solid gray">
+                <Button colorScheme="tomato" onClick={handlePosting}>
+                  Posting
+                </Button>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        </>
+      )}
     </>
   );
 };
@@ -1170,27 +1234,9 @@ export const Content = ({ text, commentsData }) => {
     <>
       {data && (
         <>
-          {user ? (
-            <>
-              {data.image_url.map((url, i) => (
-                <Image src={url} w="full" my={1} key={i} />
-              ))}
-            </>
-          ) : (
-            <>
-              <Center
-                w="full"
-                h="500px"
-                bg="gray.200"
-                justifyContent="space-evenly"
-              >
-                <PinkText text="Login untuk melihat gambar" />
-                <PinkText text="Login untuk melihat gambar" />
-                <PinkText text="Login untuk melihat gambar" />
-              </Center>
-            </>
-          )}
-
+          {data.image_url.map((url, i) => (
+            <Image src={url} w="full" my={1} key={i} />
+          ))}
           <Box borderLeft="3px solid #FF0080" roundedLeft="md" p={2} my={6}>
             <Text fontWeight="bold" fontSize="sm">
               Kode Koleksi
@@ -1265,6 +1311,9 @@ export const Content = ({ text, commentsData }) => {
                 </Link>
               </div>
             ))}
+          </Box>
+          <Box w="full" h="90px" bg="gray.100">
+            <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div>
           </Box>
         </>
       )}
