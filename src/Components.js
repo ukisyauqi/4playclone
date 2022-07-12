@@ -757,8 +757,9 @@ export const HomeSidebar = () => {
             <TagLink tag={tag} key={i} />
           ))}
         </VStack>
-        <Box w="160px" h="600px" bg="gray.100" my="20px">
-          <div dangerouslySetInnerHTML={createMarkuoAdsPotrait()}></div>
+        <Box w="160px" h="600px" my="20px">
+          {/* <div dangerouslySetInnerHTML={createMarkuoAdsPotrait()}></div> */}
+          <AdsBannerPotrait />
         </Box>
       </GridItem>
     </>
@@ -848,8 +849,9 @@ export const HomeMain = () => {
           <Text>Sepertinya tidak ada postingan disini</Text>
         ) : (
           <>
-            <Box w="full" h="90px" bg="gray.100">
-              <div dangerouslySetInnerHTML={createMarkupAdsLandscape()} />
+            <Box w="full" h="90px">
+              {/* <div dangerouslySetInnerHTML={createMarkupAdsLandscape()} /> */}
+              <AdsBannerLandscap />
             </Box>
             {mainData
               .sort((a, b) => {
@@ -1312,8 +1314,9 @@ export const Content = ({ text, commentsData }) => {
               </div>
             ))}
           </Box>
-          <Box w="full" h="90px" bg="gray.100">
-            <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div>
+          <Box w="full" h="90px">
+            {/* <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div> */}
+            <AdsBannerLandscap />
           </Box>
         </>
       )}
@@ -1334,3 +1337,59 @@ export const PinkText = ({ text }) => (
     {text}
   </Text>
 );
+
+export function AdsBannerLandscap() {
+  const banner = useRef();
+
+  const atOptions = {
+    key: "26507da9a27a8f369127a371abf7994e",
+    format: "iframe",
+    height: 90,
+    width: 728,
+    params: {},
+  };
+  useEffect(() => {
+    if (!banner.current.firstChild) {
+      const conf = document.createElement("script");
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = `//www.topdisplayformat.com/26507da9a27a8f369127a371abf7994e/invoke.js`;
+      conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
+
+      if (banner.current) {
+        banner.current.append(conf);
+        banner.current.append(script);
+      }
+    }
+  }, []);
+
+  return <div ref={banner}></div>;
+}
+
+export function AdsBannerPotrait() {
+  const banner = useRef();
+
+  const atOptions = {
+    key: "b9aed9c49bcbdeeb04cb6edd92bc5911",
+    format: "iframe",
+    height: 600,
+    width: 160,
+    params: {},
+  };
+  useEffect(() => {
+    if (!banner.current.firstChild) {
+      const conf = document.createElement("script");
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = `//www.topdisplayformat.com/b9aed9c49bcbdeeb04cb6edd92bc5911/invoke.js`;
+      conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
+
+      if (banner.current) {
+        banner.current.append(conf);
+        banner.current.append(script);
+      }
+    }
+  }, []);
+
+  return <div ref={banner}></div>;
+}

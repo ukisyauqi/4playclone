@@ -3,6 +3,7 @@ import { Box, Center, Flex, Tag, TagLabel, Text } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import {
+  AdsBannerLandscap,
   ArticleComment,
   Avatar,
   CommentModal,
@@ -61,8 +62,9 @@ export default function Post() {
         </Box>
       </Center>
       <Center>
-        <Box w="1050px" h="90px" bg="gray.100">
-          <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div>
+        <Box w="1050px" h="90px">
+          {/* <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div> */}
+          <AdsBannerLandscap />
         </Box>
       </Center>
       <Flex justifyContent="center" mt="30px">
