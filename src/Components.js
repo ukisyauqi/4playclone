@@ -46,7 +46,7 @@ import {
   useToast,
   MenuDivider,
 } from "@chakra-ui/react";
-import { AiFillStar } from "react-icons/ai";
+
 import { BiLogOut, BiReply, BiSearchAlt2 } from "react-icons/bi";
 import {
   useNavigate,
@@ -57,17 +57,13 @@ import {
 import { db, auth } from "./firebase";
 import { AppContext } from "./context";
 import {
-  createUserWithEmailAndPassword,
   getAuth,
   GoogleAuthProvider,
-  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
-  updateProfile,
 } from "firebase/auth";
 import { FiSettings } from "react-icons/fi";
-import { FaGavel } from "react-icons/fa";
-import { BsFillReplyFill, BsFillRecordCircleFill } from "react-icons/bs";
+import { BsFillReplyFill } from "react-icons/bs";
 import {
   addDoc,
   collection,

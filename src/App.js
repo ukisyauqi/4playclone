@@ -1,6 +1,6 @@
 import { Navbar } from "./Components";
-import { Box, useRangeSlider } from "@chakra-ui/react";
-import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Box } from "@chakra-ui/react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -19,10 +19,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (location.pathname === "/" || location.pathname === "/home")
-        navigate("/home/semua-koleksi");
-    }, 2000);
+    if (location.pathname === "/" || location.pathname === "/home")
+      navigate("/home/semua-koleksi");
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);

@@ -17,17 +17,14 @@ import {
   Text,
   useDisclosure,
   useToast,
-  VStack,
 } from "@chakra-ui/react";
 import {
   deleteUser,
   getAuth,
-  updateEmail,
-  updatePassword,
   updateProfile,
 } from "firebase/auth";
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Avatar } from "../Components";
 
@@ -237,7 +234,6 @@ const ModalGantiAvatar = () => {
 
 const ModalHapusAvatar = () => {
   const auth = getAuth();
-  const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const hapusAvatar = () => {
@@ -282,7 +278,6 @@ const ModalHapusAvatar = () => {
 const ModalHapusAkun = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const auth = getAuth();
-  const toast = useToast();
   const terapkanHapusAkun = () => {
     deleteUser(auth.currentUser)
       .then(() => {
