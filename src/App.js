@@ -9,7 +9,7 @@ import { AppContext } from "./context";
 function App() {
   const { setUser } = useContext(AppContext);
   const navigate = useNavigate();
-  const location = useLocation()
+  const location = useLocation();
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       user ? setUser(user) : setUser(null);
@@ -19,9 +19,13 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if  (location.pathname === "/" || location.pathname === "/home") navigate("/home/semua-koleksi")
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[location])
+    setTimeout(() => {
+      if (location.pathname === "/" || location.pathname === "/home")
+        navigate("/home/semua-koleksi");
+    }, 2000);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   return (
     <Box>

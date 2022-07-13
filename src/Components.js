@@ -863,16 +863,14 @@ export const Navbar = (props) => {
       bg="#F7F7F7"
     >
       <Flex w="1100px" h="50px">
-        <HStack spacing={8}>
-          <Img
-            src="https://i.im.ge/2022/07/11/unU5KG.th.jpg"
-            h="30px"
-            _hover={{ cursor: "pointer" }}
-            onClick={() => {
-              navigate("/home/semua-koleksi");
-            }}
-          />
-
+        <HStack spacing={0}
+          _hover={{ cursor: "pointer" }}
+          onClick={() => {
+            navigate("/home/semua-koleksi");
+          }}
+        >
+          <Img src="https://i.im.ge/2022/07/11/unU5KG.th.jpg" h="45px" position="relative" top="-2px"/>
+          <Img src="https://i.im.ge/2022/07/13/uedB40.jpg" h="30px" />
         </HStack>
         <Spacer />
         <HStack spacing={8}>
