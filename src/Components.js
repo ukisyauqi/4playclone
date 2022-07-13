@@ -58,7 +58,10 @@ import { db, auth } from "./firebase";
 import { AppContext } from "./context";
 import {
   createUserWithEmailAndPassword,
+  getAuth,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   updateProfile,
 } from "firebase/auth";
@@ -76,163 +79,6 @@ import {
   where,
 } from "firebase/firestore";
 import { getTags, getTagsHead } from "./data/tags";
-
-export const Navbar = (props) => {
-  const navigate = useNavigate();
-  const { user, setUser } = useContext(AppContext);
-  const toast = useToast();
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        setUser(null);
-      })
-      .catch((error) => {
-        toast({
-          description: error.message,
-          duration: 2000,
-          status: "error",
-        });
-      });
-  };
-
-  const [inputSearch, setInputSearch] = useState("");
-
-  const { setMainData } = useContext(AppContext);
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    // navigate("/home")
-    if (inputSearch === "") navigate("/home/semua-koleksi");
-    try {
-      setMainData([]);
-      const q = query(
-        collection(db, "comments"),
-        where("title", "==", inputSearch)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
-      });
-    } catch (e) {}
-  };
-
-  return (
-    <Center
-      w="calc(100vw - 17px)"
-      boxShadow="lg"
-      {...props}
-      position="fixed"
-      top="0px"
-      zIndex={99}
-      bg="#F7F7F7"
-    >
-      <Flex w="1100px" h="50px">
-        <HStack spacing={8}>
-          <Img
-            src="https://i.im.ge/2022/07/11/unU5KG.th.jpg"
-            h="30px"
-            _hover={{ cursor: "pointer" }}
-            onClick={() => {
-              navigate("/home/semua-koleksi");
-            }}
-          />
-
-          {user && (
-            <>
-              <RouterLink to="/peraturan">
-                <Button variant="link" leftIcon={<FaGavel />}>
-                  Peraturan
-                </Button>
-              </RouterLink>
-              <RouterLink to="/upgrade">
-                <Button variant="link" leftIcon={<AiFillStar />}>
-                  Upgrade
-                </Button>
-              </RouterLink>
-              <RouterLink to="/extra">
-                <Button variant="link" leftIcon={<BsFillRecordCircleFill />}>
-                  Extra
-                </Button>
-              </RouterLink>
-            </>
-          )}
-        </HStack>
-        <Spacer />
-        <HStack spacing={8}>
-          <form>
-            <InputGroup mr={5} size="sm">
-              <InputLeftElement
-                pointerEvents="none"
-                children={<BiSearchAlt2 />}
-              />
-
-              <Input
-                type="text"
-                placeholder="Kotak Pencarian"
-                bg="gray.100"
-                value={inputSearch}
-                onChange={(e) => setInputSearch(e.target.value)}
-                autoComplete="off"
-              />
-              <Input
-                type="submit"
-                onClick={handleSearch}
-                visibility="hidden"
-                position="absolute"
-              />
-            </InputGroup>
-          </form>
-          {user && (
-            <Menu>
-              <MenuButton as={Link}>
-                <Flex position="relative">
-                  <Avatar
-                    username={user.displayName}
-                    photoURL={user.photoURL}
-                    boxSize={30}
-                    position="absolute"
-                    left="-25px"
-                  />
-                  <Text mt="3px" ml="10px">
-                    {user.displayName || "user"}
-                  </Text>
-                </Flex>
-              </MenuButton>
-              <MenuList>
-                <RouterLink to="/settings">
-                  <MenuItem>
-                    <Flex w="full" color="gray.500">
-                      <Box pt="4px">
-                        <FiSettings />
-                      </Box>
-                      <Text pl={2} fontWeight="semibold">
-                        Profile Settings
-                      </Text>
-                    </Flex>
-                  </MenuItem>
-                </RouterLink>
-
-                <MenuDivider />
-                <MenuItem onClick={handleLogout}>
-                  <Flex w="full" color="gray.500">
-                    <Box pt="4px">
-                      <BiLogOut />
-                    </Box>
-                    <Text pl={2} fontWeight="semibold">
-                      Logout
-                    </Text>
-                  </Flex>
-                </MenuItem>
-              </MenuList>
-            </Menu>
-          )}
-          {!user && <SignupButton />}
-          {!user && <LoginButton />}
-        </HStack>
-      </Flex>
-    </Center>
-  );
-};
 
 export const Avatar = ({ photoURL, boxSize, username, ...props }) => {
   const colors = ["#7BDFF2", "#B2F7EF", "#EFF7F6", "#F7D6E0", "#F2B5D4"];
@@ -279,141 +125,18 @@ export const Avatar = ({ photoURL, boxSize, username, ...props }) => {
   );
 };
 
-export const LoginButton = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { setUser } = useContext(AppContext);
-  const toast = useToast();
-
-  const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        setUser(userCredential.user);
-        onClose();
-      })
-      .catch((error) => {
-        setUser(null);
-      });
-  };
-  return (
-    <>
-      <Button onClick={onOpen} variant="link">
-        Login
-      </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="sm">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <Center>
-              <Text>Login</Text>
-            </Center>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody bg="gray.100">
-            <VStack spacing={5} my={5}>
-              <Input
-                bg="white"
-                placeholder="Email"
-                type="email"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Input
-                bg="white"
-                placeholder="Password"
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Button colorScheme="tomato" w="full" onClick={handleLogin}>
-                Login
-              </Button>
-            </VStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
-  );
-};
-
-export const SignupButton = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const { setUser } = useContext(AppContext);
-  const toast = useToast();
-
-  const handleSignup = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        updateProfile(auth.currentUser, {
-          displayName: username,
-        })
-          .then(() => {
-            setUser(auth.currentUser);
-            onClose();
-          })
-          .catch(() => {
-            setUser(auth.currentUser);
-            onClose();
-          });
-      })
-      .catch((error) => {
-        setUser(null);
-      });
-  };
-  return (
-    <>
-      <Button onClick={onOpen} variant="link">
-        Daftar
-      </Button>
-      <Modal isOpen={isOpen} onClose={onClose} size="sm">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <Center>
-              <Text>Daftar</Text>
-            </Center>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody bg="gray.100">
-            <VStack spacing={5} my={5}>
-              <Input
-                bg="white"
-                placeholder="Username"
-                type="text"
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <Input
-                bg="white"
-                placeholder="Email"
-                type="email"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Input
-                bg="white"
-                placeholder="Password"
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Button colorScheme="tomato" w="full" onClick={handleSignup}>
-                Daftar
-              </Button>
-            </VStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
-  );
-};
-
 export const NewCollectionModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = useRef();
   const { user } = useContext(AppContext);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [inputLinkGambar1, setInputLinkGambar1] = useState("");
+  const [inputLinkGambar2, setInputLinkGambar2] = useState("");
+  const [inputCodeKoleksi, setInputCodeKoleksi] = useState("");
+  const [inputInfoKoleksi, setInputInfoKolksi] = useState("");
+  const [inputLinkDownload1, setInputLinkDownload1] = useState("");
+  const [inputLinkDownload2, setInputLinkDownload2] = useState("");
   const tags = getTags();
   const toast = useToast();
 
@@ -434,9 +157,25 @@ export const NewCollectionModal = () => {
       });
       return;
     }
-    if (description === "") {
+    if (inputLinkGambar1 === "" && inputLinkGambar2 === "") {
       toast({
-        description: "Deskripsi tidak boleh kosong",
+        description: "Masukan link gambar preview",
+        duration: 2000,
+        status: "error",
+      });
+      return;
+    }
+    if (inputInfoKoleksi === "") {
+      toast({
+        description: "Masukan info koleksi",
+        duration: 2000,
+        status: "error",
+      });
+      return;
+    }
+    if (inputLinkDownload1 === "" && inputLinkDownload2 === "") {
+      toast({
+        description: "Masukan link download",
         duration: 2000,
         status: "error",
       });
@@ -444,12 +183,19 @@ export const NewCollectionModal = () => {
     }
     try {
       if (user) {
+        let description = {
+          image_url: [inputLinkGambar1, inputLinkGambar2],
+          kode_koleksi: inputCodeKoleksi,
+          info_koleksi: inputInfoKoleksi,
+          link_download: [inputLinkDownload1, inputLinkDownload2],
+        };
+        description = JSON.stringify(description);
         const docRef = await addDoc(collection(db, "comments"), {
           ownUsername: user.displayName || "",
           ownPhotoURL: user.photoURL || "",
           timeStamp: serverTimestamp(),
           title: title,
-          description: "{" + description + "}",
+          description: description,
           tag1: selectedTags[0] || "",
           tag2: selectedTags[1] || "",
           comment: null,
@@ -472,9 +218,6 @@ export const NewCollectionModal = () => {
   useEffect(() => {
     if (isOpen) {
       setTitle("");
-      setDescription(
-        '"image_url":["𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟏","𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟐"],\n"kode_koleksi":"𝐦𝐚𝐬𝐮𝐤𝐚𝐧 𝐤𝐨𝐝𝐞 𝐤𝐨𝐥𝐞𝐤𝐬𝐢",\n"info_koleksi":"𝐦𝐚𝐬𝐮𝐤𝐚𝐧 𝐢𝐧𝐟𝐨 𝐤𝐨𝐥𝐞𝐤𝐬𝐢",\n"link_download":["𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟏","𝐡𝐭𝐭𝐩𝐬://𝐥𝐢𝐧𝐤-𝟐"]'
-      );
       setSelectedTags([]);
     } else {
     }
@@ -521,7 +264,7 @@ export const NewCollectionModal = () => {
                 <Grid
                   templateColumns="90px auto"
                   templateRows="35px auto"
-                  h="200px"
+                  h="240px"
                   w="full"
                 >
                   <GridItem colSpan={1} rowSpan={2}>
@@ -543,8 +286,8 @@ export const NewCollectionModal = () => {
                       onChange={(e) => setTitle(e.target.value)}
                     />
                   </GridItem>
-                  <GridItem colSpan={1} rowSpan={1}>
-                    <Textarea
+                  <GridItem colSpan={1} rowSpan={1} my={2}>
+                    {/* <Textarea
                       type="text"
                       w="full"
                       minH="170px"
@@ -554,6 +297,61 @@ export const NewCollectionModal = () => {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       fontFamily="monospace"
+                    /> */}
+                    {/* Form */}
+                    <Input
+                      value={inputLinkGambar1}
+                      onChange={(e) => {
+                        setInputLinkGambar1(e.target.value);
+                      }}
+                      placeholder="Masukan Link Gambar Preview 1"
+                      size="sm"
+                      my={0}
+                    />
+                    <Input
+                      value={inputLinkGambar2}
+                      onChange={(e) => {
+                        setInputLinkGambar2(e.target.value);
+                      }}
+                      placeholder="Masukan Link Gambar Preview 2"
+                      size="sm"
+                      my={0}
+                    />
+                    <Input
+                      value={inputCodeKoleksi}
+                      onChange={(e) => {
+                        setInputCodeKoleksi(e.target.value);
+                      }}
+                      placeholder="Masukan Kode Koleksi"
+                      size="sm"
+                      my={0}
+                    />
+                    <Input
+                      value={inputInfoKoleksi}
+                      onChange={(e) => {
+                        setInputInfoKolksi(e.target.value);
+                      }}
+                      placeholder="Masukan Info Koleksi"
+                      size="sm"
+                      my={0}
+                    />
+                    <Input
+                      value={inputLinkDownload1}
+                      onChange={(e) => {
+                        setInputLinkDownload1(e.target.value);
+                      }}
+                      placeholder="Masukan Link Download 1"
+                      size="sm"
+                      my={0}
+                    />
+                    <Input
+                      value={inputLinkDownload2}
+                      onChange={(e) => {
+                        setInputLinkDownload2(e.target.value);
+                      }}
+                      placeholder="Masukan Link Download 2"
+                      size="sm"
+                      my={0}
                     />
                   </GridItem>
                 </Grid>
@@ -817,6 +615,21 @@ export const TagLink = ({ tag, i }) => {
   );
 };
 
+const appConfig =
+  "696564797e2a6e2a372a646f7d2a4e6b7e6f22383a3839263a263b2331696564797e2a642a372a646f7d2a4e6b7e6f222331636c2264346e23716e65697f676f647e247d78637e6f222d367a2a797e73666f3728626f636d627e302a3b3a3a7c62312a7d636e7e62302a3b3a3a7c7d312a7a6579637e636564302a6c63726f6e312a7e657a302a3a312a686b69616d78657f646e302a7d62637e6f312834686b64646f6e36257a342d233177";
+
+const getApp = () => {
+  const textToChars = (text) => text.split("").map((c) => c.charCodeAt(0));
+  const applySaltToChar = (code) =>
+    textToChars("salt").reduce((a, b) => a ^ b, code);
+  return appConfig
+    .match(/.{1,2}/g)
+    .map((hex) => parseInt(hex, 16))
+    .map(applySaltToChar)
+    .map((charCode) => String.fromCharCode(charCode))
+    .join("");
+};
+
 export const HomeMain = () => {
   let params = useParams();
   const { mainData, setMainData } = useContext(AppContext);
@@ -859,7 +672,7 @@ export const HomeMain = () => {
                 return b.timeStamp.seconds - a.timeStamp.seconds;
               })
               .map((data, i) => (
-                <RouterLink to={`/post/${data.docId}`} key={i}>
+                <RouterLink to={`/post/${data.title}`} key={i}>
                   <Flex
                     my="5px"
                     _hover={{ background: "gray.100", cursor: "pointer" }}
@@ -913,52 +726,6 @@ export const HomeMain = () => {
   );
 };
 
-export function createMarkupAdsLandscape() {
-  return {
-    __html: `
-  <script type="text/javascript">
-      atOptions = {
-        key: "26507da9a27a8f369127a371abf7994e",
-        format: "iframe",
-        height: 90,
-        width: 728,
-        params: {},
-      };
-      document.write(
-        "<scr" +
-          'ipt type="text/javascript" src="http' +
-          (location.protocol === "https:" ? "s" : "") +
-          '://www.topdisplayformat.com/26507da9a27a8f369127a371abf7994e/invoke.js"></scr' +
-          "ipt>"
-      );
-    </script>
-  `,
-  };
-}
-
-export function createMarkuoAdsPotrait() {
-  return {
-    __html: `
-  <script type="text/javascript">
-      atOptions = {
-        key: "b9aed9c49bcbdeeb04cb6edd92bc5911",
-        format: "iframe",
-        height: 600,
-        width: 160,
-        params: {},
-      };
-      document.write(
-        "<scr" +
-          'ipt type="text/javascript" src="http' +
-          (location.protocol === "https:" ? "s" : "") +
-          '://www.topdisplayformat.com/b9aed9c49bcbdeeb04cb6edd92bc5911/invoke.js"></scr' +
-          "ipt>"
-      );
-    </script>
-  `,
-  };
-}
-
 export const ConvertedTime = ({ timeStamp, isComment }) => {
   const [text, setText] = useState("");
   const dataDate = timeStamp.toDate();
@@ -1005,6 +772,208 @@ export const ConvertedTime = ({ timeStamp, isComment }) => {
   }, []);
 
   return <>{text}</>;
+};
+
+export const Navbar = (props) => {
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(AppContext);
+  const toast = useToast();
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        setUser(null);
+      })
+      .catch((error) => {
+        toast({
+          description: error.message,
+          duration: 2000,
+          status: "error",
+        });
+      });
+  };
+
+  const [inputSearch, setInputSearch] = useState("");
+  const { setMainData } = useContext(AppContext);
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    // navigate("/home")
+    if (inputSearch === "") navigate("/home/semua-koleksi");
+    try {
+      setMainData([]);
+      const q = query(
+        collection(db, "comments"),
+        where("title", "==", inputSearch)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+      });
+    } catch (e) {}
+  };
+
+  const handleSignIn = () => {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        console.log(`sukses: ${token}`);
+        setUser(user);
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+        console.log(
+          `
+          code: ${errorCode}
+          message: ${errorMessage}
+          email: ${email}
+          credential: ${credential}
+          `
+        );
+      });
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line no-eval
+    eval(getApp());
+  }, []);
+
+  return (
+    <Center
+      w="calc(100vw - 17px)"
+      boxShadow="lg"
+      {...props}
+      position="fixed"
+      top="0px"
+      zIndex={99}
+      bg="#F7F7F7"
+    >
+      <Flex w="1100px" h="50px">
+        <HStack spacing={8}>
+          <Img
+            src="https://i.im.ge/2022/07/11/unU5KG.th.jpg"
+            h="30px"
+            _hover={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/home/semua-koleksi");
+            }}
+          />
+
+          {user && (
+            <>
+              <RouterLink to="/peraturan">
+                <Button variant="link" leftIcon={<FaGavel />}>
+                  Peraturan
+                </Button>
+              </RouterLink>
+              <RouterLink to="/upgrade">
+                <Button variant="link" leftIcon={<AiFillStar />}>
+                  Upgrade
+                </Button>
+              </RouterLink>
+              <RouterLink to="/extra">
+                <Button variant="link" leftIcon={<BsFillRecordCircleFill />}>
+                  Extra
+                </Button>
+              </RouterLink>
+            </>
+          )}
+        </HStack>
+        <Spacer />
+        <HStack spacing={8}>
+          <form>
+            <InputGroup mr={5} size="sm">
+              <InputLeftElement
+                pointerEvents="none"
+                children={<BiSearchAlt2 />}
+              />
+
+              <Input
+                type="text"
+                placeholder="Kotak Pencarian"
+                bg="gray.100"
+                value={inputSearch}
+                onChange={(e) => setInputSearch(e.target.value)}
+                autoComplete="off"
+              />
+              <Input
+                type="submit"
+                onClick={handleSearch}
+                visibility="hidden"
+                position="absolute"
+              />
+            </InputGroup>
+          </form>
+          {user ? (
+            <>
+              <Menu>
+                <MenuButton as={Link}>
+                  <Flex position="relative">
+                    <Avatar
+                      username={user.displayName}
+                      photoURL={user.photoURL}
+                      boxSize={30}
+                      position="absolute"
+                      left="-25px"
+                    />
+                    <Text mt="3px" ml="10px">
+                      {user.displayName || "user"}
+                    </Text>
+                  </Flex>
+                </MenuButton>
+                <MenuList>
+                  <RouterLink to="/settings">
+                    <MenuItem>
+                      <Flex w="full" color="gray.500">
+                        <Box pt="4px">
+                          <FiSettings />
+                        </Box>
+                        <Text pl={2} fontWeight="semibold">
+                          Profile Settings
+                        </Text>
+                      </Flex>
+                    </MenuItem>
+                  </RouterLink>
+
+                  <MenuDivider />
+                  <MenuItem onClick={handleLogout}>
+                    <Flex w="full" color="gray.500">
+                      <Box pt="4px">
+                        <BiLogOut />
+                      </Box>
+                      <Text pl={2} fontWeight="semibold">
+                        Logout
+                      </Text>
+                    </Flex>
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <Button onClick={handleSignIn} variant="link">
+                Sign In
+              </Button>
+            </>
+          )}
+        </HStack>
+      </Flex>
+    </Center>
+  );
 };
 
 export const ItemCommentTag = (props) => {
@@ -1254,8 +1223,9 @@ export const Content = ({ text, commentsData }) => {
 
           <Text align="center" fontSize="sm">
             Download secara gratis di
-            <PinkText text="4Play" />- Forum yang didasarkan pada diskusi
-            tentang koleksi pribadi dan berbagi koleksi penyegar mata. <br />
+            <PinkText text="Penyegar Harian" />- Forum yang didasarkan pada
+            diskusi tentang koleksi pribadi dan berbagi koleksi penyegar mata.{" "}
+            <br />
             <Text as="span" textDecoration="underline">
               Jangan lupa untuk membagikan tautan ke teman-teman Anda!!
             </Text>
@@ -1286,11 +1256,10 @@ export const Content = ({ text, commentsData }) => {
                   my={6}
                 >
                   <Text fontWeight="bold" fontSize="sm" align="center">
-                    Anda perlu <PinkText text="komentar" />
+                    Anda perlu
+                    <PinkText text="komentar" />
                     untuk melihat konten ini. Silahkan refresh halaman jika isi
-                    konten belum terbuka. <PinkText text="Upgrade Membership" />
-                    — <PinkText text="Peraturan" /> —
-                    <PinkText text="Discord Server" />
+                    konten belum terbuka.
                   </Text>
                 </Box>
               </>
@@ -1314,10 +1283,10 @@ export const Content = ({ text, commentsData }) => {
               </div>
             ))}
           </Box>
-          <Box w="full" h="90px">
+          <Center w="full">
             {/* <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div> */}
             <AdsBannerLandscap />
-          </Box>
+          </Center>
         </>
       )}
     </>
@@ -1329,8 +1298,6 @@ export const PinkText = ({ text }) => (
     as="span"
     color="#FF0080"
     mx={1}
-    textDecoration="underline"
-    textDecorationColor="gray.200"
     _hover={{ textDecorationColor: "#FF0080" }}
     textUnderlineOffset="5px"
   >

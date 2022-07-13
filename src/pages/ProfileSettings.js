@@ -47,10 +47,10 @@ export default function ProfileSettings() {
       });
       return;
     }
-    if (inputUsername.length > 12) {
+    if (inputUsername.length > 20) {
       toast({
         duration: 2000,
-        description: `input tidak boleh lebih dari 12 karakter`,
+        description: `input tidak boleh lebih dari 20 karakter`,
         status: "error",
       });
       return;
@@ -218,60 +218,14 @@ export default function ProfileSettings() {
 
             {/* email */}
             <Text fontWeight="bold" mt={5}>
-              Ganti Email
+              Email
             </Text>
             <HStack mt={2}>
               <Input
                 placeholder={user.email}
-                value={inputEmail}
-                onChange={(e) => {
-                  setInputEmail(e.target.value);
-                }}
-                type="email"
-                autoComplete=""
+                disabled
               />
-              <Button
-                variant="ghost"
-                colorScheme="tomato"
-                shadow="md"
-                onClick={terapkanGantiEmail}
-              >
-                Terapkan
-              </Button>
             </HStack>
-            <Divider my={4} />
-
-            {/* Password */}
-            <Text fontWeight="bold" mt={5}>
-              Ganti Password
-            </Text>
-            <VStack mt={2}>
-              <Input
-                placeholder="masukan password"
-                value={inputPassword}
-                onChange={(e) => {
-                  setInputPassword(e.target.value);
-                }}
-                type="password"
-              />
-              <Input
-                placeholder="konfirmasi password"
-                value={inputConfirmPassword}
-                onChange={(e) => {
-                  setInputConfirmPassword(e.target.value);
-                }}
-                type="password"
-              />
-              <Button
-                variant="solid"
-                colorScheme="tomato"
-                shadow="md"
-                w="full"
-                onClick={terapkanGantiPassword}
-              >
-                Terapkan
-              </Button>
-            </VStack>
             <Divider my={4} />
 
             {/* Delete Akun */}
@@ -285,7 +239,7 @@ export default function ProfileSettings() {
               <Spacer />
               <ModalHapusAkun />
             </HStack>
-            <Divider my={4} />
+            <Divider mt={4} mb={24}/>
           </Box>
         </>
       ) : (

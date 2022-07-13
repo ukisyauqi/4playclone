@@ -24,7 +24,7 @@ root.render(
               <Route path="home" element={<Home />}>
                 <Route path=":tag" element={<HomeMain />} />
               </Route>
-              <Route path="post/:docId" element={<Post />} />
+              <Route path="post/:title" element={<Post />} />
               <Route path="settings" element={<ProfileSettings />}/>
             </Route>
             <Route path="*" element={<NoPage />} />
