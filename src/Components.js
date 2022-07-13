@@ -873,25 +873,6 @@ export const Navbar = (props) => {
             }}
           />
 
-          {user && (
-            <>
-              <RouterLink to="/peraturan">
-                <Button variant="link" leftIcon={<FaGavel />}>
-                  Peraturan
-                </Button>
-              </RouterLink>
-              <RouterLink to="/upgrade">
-                <Button variant="link" leftIcon={<AiFillStar />}>
-                  Upgrade
-                </Button>
-              </RouterLink>
-              <RouterLink to="/extra">
-                <Button variant="link" leftIcon={<BsFillRecordCircleFill />}>
-                  Extra
-                </Button>
-              </RouterLink>
-            </>
-          )}
         </HStack>
         <Spacer />
         <HStack spacing={8}>

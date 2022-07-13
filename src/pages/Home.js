@@ -7,7 +7,7 @@ export default function Home() {
   const navigate = useNavigate();
   const params = useParams();
   useEffect(() => {
-    if (!params.docId) navigate("/home/semua-koleksi");
+    if (!params.title) navigate("/home/semua-koleksi");
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

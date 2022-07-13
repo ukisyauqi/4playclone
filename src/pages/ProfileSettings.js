@@ -26,7 +26,8 @@ import {
   updatePassword,
   updateProfile,
 } from "firebase/auth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { Avatar } from "../Components";
 
@@ -34,10 +35,7 @@ export default function ProfileSettings() {
   const user = getAuth().currentUser;
   const toast = useToast();
   const [inputUsername, setInputUsername] = useState();
-  const [inputEmail, setInputEmail] = useState();
-  const [inputPassword, setInputPassword] = useState();
-  const [inputConfirmPassword, setInputConfirmPassword] = useState();
-
+  const navigate = useNavigate()
   const terapkanGantiUsername = () => {
     if (inputUsername === "") {
       toast({
@@ -74,81 +72,13 @@ export default function ProfileSettings() {
       });
   };
 
-  const terapkanGantiEmail = () => {
-    if (inputUsername === "") {
-      toast({
-        duration: 2000,
-        description: `Input tidak boleh kosong`,
-        status: "error",
-      });
-      return;
+  useEffect(() => {
+    if (!user) navigate("/home/semua-koleksi") 
+    return () => {
     }
-    updateEmail(user, inputEmail)
-      .then(() => {
-        toast({
-          duration: 2000,
-          description: "Update email berhasil",
-          status: "success",
-        });
-      })
-      .catch((error) => {
-        toast({
-          duration: 2000,
-          description: `update email gagal: ${error.message}`,
-          status: "error",
-        });
-      });
-  };
+  }, [])
+  
 
-  const terapkanGantiPassword = () => {
-    if (inputPassword !== inputConfirmPassword) {
-      toast({
-        duration: 2000,
-        description: `Password tidak cocok`,
-        status: "error",
-      });
-      return;
-    }
-    if (inputPassword === "") {
-      toast({
-        duration: 2000,
-        description: `Input tidak boleh kosong`,
-        status: "error",
-      });
-      return;
-    }
-    if (inputPassword.length > 20) {
-      toast({
-        duration: 2000,
-        description: `input tidak boleh lebih dari 20 karakter`,
-        status: "error",
-      });
-      return;
-    }
-    if (inputPassword.length < 6) {
-      toast({
-        duration: 2000,
-        description: `input tidak boleh kurang dari 6 karakter`,
-        status: "error",
-      });
-      return;
-    }
-    updatePassword(user, inputPassword)
-      .then(() => {
-        toast({
-          duration: 2000,
-          description: "Update password berhasil",
-          status: "success",
-        });
-      })
-      .catch((error) => {
-        toast({
-          duration: 2000,
-          description: `Update password gagal: ${error.message}`,
-          status: "error",
-        });
-      });
-  };
 
   return (
     <Box>
