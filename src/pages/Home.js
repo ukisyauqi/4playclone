@@ -4,14 +4,6 @@ import { HomeSidebar } from "../Components";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 
 export default function Home() {
-  const navigate = useNavigate();
-  const params = useParams();
-  useEffect(() => {
-    if (!params.title) navigate("/home/semua-koleksi");
-    return () => {};
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <Box>
       <Grid
