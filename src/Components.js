@@ -822,7 +822,7 @@ export const Navbar = (props) => {
   };
 
   const [inputSearch, setInputSearch] = useState("");
-  const { mainData, setMainData } = useContext(AppContext);
+  const { mainData, setMainData, setIsFromSearch, isFromSearch } = useContext(AppContext);
   let params = useParams();
 
   const handleSearch = async (e) => {
@@ -864,6 +864,7 @@ export const Navbar = (props) => {
         });
         console.log("filtered: ", filteredData)
         setMainData(filteredData);
+        setIsFromSearch(true)
       } catch (e) {}
     }
   };
@@ -1270,6 +1271,7 @@ export const Content = ({ text, commentsData }) => {
               Jangan lupa untuk membagikan tautan ke teman-teman Anda!!
             </Text>
           </Text>
+    
 
           {user && commented ? (
             <>
@@ -1323,8 +1325,7 @@ export const Content = ({ text, commentsData }) => {
               </div>
             ))}
           </Box>
-          <Center w="full">
-            {/* <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div> */}
+          <Center w="full" h="90px">
             <AdsBannerLandscap />
           </Center>
         </>
