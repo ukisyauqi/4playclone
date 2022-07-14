@@ -68,7 +68,9 @@ import {
   addDoc,
   collection,
   getDocs,
+  limit,
   onSnapshot,
+  orderBy,
   query,
   serverTimestamp,
   Timestamp,
@@ -629,31 +631,72 @@ const getApp = () => {
 export const HomeMain = () => {
   let params = useParams();
   const { mainData, setMainData } = useContext(AppContext);
+  // const [scrollPosition, setScrollPosition] = useState(0);
+  const PrevAmountItemShowed = useRef;
 
   useEffect(() => {
     const tag = params.tag.split(":");
     let q;
+    PrevAmountItemShowed.current = 0;
 
-    if (tag.length === 1) {
-      if (tag[0] === "semua-koleksi") q = query(collection(db, "comments"));
-      else q = query(collection(db, "comments"), where("tag1", "==", tag[0]));
-    } else q = query(collection(db, "comments"), where("tag2", "==", tag[1]));
+    const handleScroll = () => {
+      const position = window.scrollY;
+      const CurrentAmountItemShowed = Math.floor(position / 350) * 5 + 10;
+      console.log(PrevAmountItemShowed.current);
+      if (PrevAmountItemShowed.current < CurrentAmountItemShowed) {
+        PrevAmountItemShowed.current = CurrentAmountItemShowed;
+        console.log(PrevAmountItemShowed.current);
+        fetchData(PrevAmountItemShowed.current);
+      }
+    };
 
-    const unsub = onSnapshot(q, (querySnapshot) => {
-      setMainData([]);
-      querySnapshot.forEach((doc) => {
-        setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
-      });
-    });
+    const fetchData = (l) => {
+      if (tag.length === 1) {
+        if (tag[0] === "semua-koleksi")
+          q = query(
+            collection(db, "comments"),
+            orderBy("timeStamp", "desc"),
+            limit(l)
+          );
+        else
+          q = query(
+            collection(db, "comments"),
+            where("tag1", "==", tag[0]),
+            orderBy("timeStamp", "desc"),
+            limit(l)
+          );
+      } else
+        q = query(
+          collection(db, "comments"),
+          where("tag2", "==", tag[1]),
+          orderBy("timeStamp", "desc"),
+          limit(l)
+        );
+
+      getDocs(q)
+        .then((querySnapshot) => {
+          setMainData([]);
+          querySnapshot.forEach((doc) => {
+            setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+          });
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    };
+
+    fetchData(10);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      unsub();
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [params]);
 
   return (
     <>
-      <GridItem colSpan={1}>
+      <GridItem colSpan={1} pb="30vh">
         {mainData.length === 0 ? (
           <Text>Sepertinya tidak ada postingan disini</Text>
         ) : (
@@ -790,23 +833,37 @@ export const Navbar = (props) => {
   };
 
   const [inputSearch, setInputSearch] = useState("");
-  const { setMainData } = useContext(AppContext);
+  const { mainData, setMainData } = useContext(AppContext);
+  let params = useParams();
 
   const handleSearch = async (e) => {
     e.preventDefault();
     // navigate("/home")
-    if (inputSearch === "") navigate("/home/semua-koleksi");
-    try {
-      setMainData([]);
-      const q = query(
-        collection(db, "comments"),
-        where("title", "==", inputSearch)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+    if (params.tag) {
+      if (inputSearch === "") navigate("/home/semua-koleksi");
+      try {
+        setMainData([]);
+        const q = query(
+          collection(db, "comments"),
+          where("title", "==", inputSearch)
+        );
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+        });
+      } catch (e) {}
+    } else if (params.title) {
+      if (inputSearch === "") return;
+
+      const filteredData = mainData.filter((data) => {
+        if (!data.comment) return false;
+        return (
+          data.comment.toUpperCase().indexOf(inputSearch.toUpperCase()) > -1
+        );
       });
-    } catch (e) {}
+
+      setMainData(filteredData);
+    }
   };
 
   const handleSignIn = () => {
@@ -859,13 +916,19 @@ export const Navbar = (props) => {
       bg="#F7F7F7"
     >
       <Flex w="1100px" h="50px">
-        <HStack spacing={0}
+        <HStack
+          spacing={0}
           _hover={{ cursor: "pointer" }}
           onClick={() => {
             navigate("/home/semua-koleksi");
           }}
         >
-          <Img src="https://i.im.ge/2022/07/11/unU5KG.th.jpg" h="45px" position="relative" top="-2px"/>
+          <Img
+            src="https://i.im.ge/2022/07/11/unU5KG.th.jpg"
+            h="45px"
+            position="relative"
+            top="-2px"
+          />
           <Img src="https://i.im.ge/2022/07/13/uedB40.jpg" h="30px" />
         </HStack>
         <Spacer />

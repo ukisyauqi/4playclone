@@ -1,7 +1,7 @@
 import { Navbar } from "./Components";
 import { Box } from "@chakra-ui/react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { AppContext } from "./context";
@@ -10,11 +10,12 @@ function App() {
   const { setUser } = useContext(AppContext);
   const navigate = useNavigate();
   const location = useLocation();
+
+
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       user ? setUser(user) : setUser(null);
     });
-    return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

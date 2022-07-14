@@ -4,7 +4,9 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   onSnapshot,
+  orderBy,
   query,
   where,
 } from "firebase/firestore";
@@ -24,8 +26,7 @@ import { db } from "../firebase";
 export default function Post() {
   const params = useParams();
 
-  const { mainData } = useContext(AppContext);
-  const [data, setData] = useState([]);
+  const { mainData, setMainData } = useContext(AppContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,15 +35,15 @@ export default function Post() {
     if (d.length === 0 || !d) {
       const q = query(
         collection(db, "comments"),
-        where("title", "==", params.title)
+        where("title", "==", params.title),
+        limit(50)
       );
       unsub = onSnapshot(
         q,
         (querySnapshot) => {
-          setData([]);
+          setMainData([]);
           querySnapshot.forEach((doc) => {
-            console.log(doc.data())
-            setData((prev) => [...prev, doc.data()]);
+            setMainData((prev) => [...prev, doc.data()]);
           });
         },
         (error) => {
@@ -51,7 +52,7 @@ export default function Post() {
         }
       );
     } else {
-      setData(d);
+      setMainData(d);
     }
     return () => {
       if (unsub !== undefined) unsub();
@@ -60,26 +61,26 @@ export default function Post() {
 
   return (
     <>
-      {data.length !== 0 && (
+      {mainData.length !== 0 && (
         <>
-          <Center h="140px" bg={data[0].color || "#FF0080"}>
+          <Center h="140px" bg={mainData[0].color || "#FF0080"}>
             <Box>
               <Center>
                 <Tag size="sm" h="10px" variant="subtle" bg={"white"}>
-                  <TagLabel ml={1} color={data[0].color}>
-                    {data[0].tag1}
+                  <TagLabel ml={1} color={mainData[0].color}>
+                    {mainData[0].tag1}
                   </TagLabel>
                 </Tag>
-                {data[0].tag2 && (
+                {mainData[0].tag2 && (
                   <Tag size="sm" h="10px" variant="subtle" bg={"white"} ml={1}>
-                    <TagLabel ml={1} color={data[0].color}>
-                      {data[0].tag2}
+                    <TagLabel ml={1} color={mainData[0].color}>
+                      {mainData[0].tag2}
                     </TagLabel>
                   </Tag>
                 )}
               </Center>
               <Text color="white" fontSize="3xl" mt={1} align="center">
-                {data[0].title}
+                {mainData[0].title}
               </Text>
             </Box>
           </Center>
@@ -94,24 +95,24 @@ export default function Post() {
               <Flex borderBottom="1px solid #ddd" pb="15px">
                 <Avatar
                   boxSize={70}
-                  username={data[0].ownUsername}
-                  photoURL={data[0].photoURL}
+                  username={mainData[0].ownUsername}
+                  photoURL={mainData[0].photoURL}
                 />
                 <Box w="760px" ml={3}>
                   <Flex>
                     <Text fontSize="sm" fontWeight="bold">
-                      {data[0].ownUsername}
+                      {mainData[0].ownUsername}
                     </Text>
                   </Flex>
                   <Box>
-                    <Content text={data[0].description} commentsData={data} />
+                    <Content text={mainData[0].description} commentsData={mainData} />
                   </Box>
                 </Box>
               </Flex>
-              {data.length < 2 ? (
+              {mainData.length < 2 ? (
                 <Text>Belum Ada Komentar</Text>
               ) : (
-                data.map((d, i) => (
+                mainData.map((d, i) => (
                   <div key={i}>
                     {d.cUsername && <ArticleComment data={d} />}
                   </div>
@@ -119,7 +120,7 @@ export default function Post() {
               )}
             </Box>
             <Box h="100px" w="150px" ml="75px" pos="sticky" top="20">
-              <CommentModal articleData={data[0]} />
+              <CommentModal articleData={mainData[0]} />
             </Box>
           </Flex>
         </>
