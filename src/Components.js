@@ -285,17 +285,6 @@ export const NewCollectionModal = () => {
                     />
                   </GridItem>
                   <GridItem colSpan={1} rowSpan={1} my={2}>
-                    {/* <Textarea
-                      type="text"
-                      w="full"
-                      minH="170px"
-                      variant="unstyled"
-                      placeholder="Isi Koleksi..."
-                      size="sm"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      fontFamily="monospace"
-                    /> */}
                     {/* Form */}
                     <Input
                       value={inputLinkGambar1}
@@ -854,15 +843,28 @@ export const Navbar = (props) => {
       } catch (e) {}
     } else if (params.title) {
       if (inputSearch === "") return;
-
-      const filteredData = mainData.filter((data) => {
-        if (!data.comment) return false;
-        return (
-          data.comment.toUpperCase().indexOf(inputSearch.toUpperCase()) > -1
+      try {
+        setMainData([]);
+        const q = query(
+          collection(db, "comments"),
+          where("title", "==", params.title)
         );
-      });
-
-      setMainData(filteredData);
+        const querySnapshot = await getDocs(q);
+        const fetchedData = [];
+        querySnapshot.forEach((doc) => {
+          // setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+          fetchedData.push({ docId: doc.id, ...doc.data() });
+        });
+        console.log("fetch:", fetchedData)
+        const filteredData = fetchedData.filter((data) => {
+          if (!data.comment) return -1;
+          return (
+            data.comment.toUpperCase().indexOf(inputSearch.toUpperCase()) > -1
+          );
+        });
+        console.log("filtered: ", filteredData)
+        setMainData(filteredData);
+      } catch (e) {}
     }
   };
 
