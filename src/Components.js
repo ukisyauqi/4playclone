@@ -619,7 +619,8 @@ const getApp = () => {
 
 export const HomeMain = () => {
   let params = useParams();
-  const { mainData, setMainData } = useContext(AppContext);
+  const { mainData, setMainData, isFromSearch, setIsFromSearch } =
+    useContext(AppContext);
   // const [scrollPosition, setScrollPosition] = useState(0);
   const PrevAmountItemShowed = useRef;
 
@@ -634,8 +635,7 @@ export const HomeMain = () => {
       console.log(PrevAmountItemShowed.current);
       if (PrevAmountItemShowed.current < CurrentAmountItemShowed) {
         PrevAmountItemShowed.current = CurrentAmountItemShowed;
-        console.log(PrevAmountItemShowed.current);
-        fetchData(PrevAmountItemShowed.current);
+        if (!isFromSearch) fetchData(PrevAmountItemShowed.current);
       }
     };
 
@@ -822,51 +822,39 @@ export const Navbar = (props) => {
   };
 
   const [inputSearch, setInputSearch] = useState("");
-  const { mainData, setMainData, setIsFromSearch, isFromSearch } = useContext(AppContext);
+  const { mainData, setMainData, setIsFromSearch, isFromSearch } =
+    useContext(AppContext);
   let params = useParams();
 
   const handleSearch = async (e) => {
     e.preventDefault();
     // navigate("/home")
-    if (params.tag) {
-      if (inputSearch === "") navigate("/home/semua-koleksi");
-      try {
-        setMainData([]);
-        const q = query(
-          collection(db, "comments"),
-          where("title", "==", inputSearch)
-        );
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
-        });
-      } catch (e) {}
-    } else if (params.title) {
-      if (inputSearch === "") return;
-      try {
-        setMainData([]);
-        const q = query(
-          collection(db, "comments"),
-          where("title", "==", params.title)
-        );
-        const querySnapshot = await getDocs(q);
-        const fetchedData = [];
-        querySnapshot.forEach((doc) => {
-          // setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
-          fetchedData.push({ docId: doc.id, ...doc.data() });
-        });
-        console.log("fetch:", fetchedData)
-        const filteredData = fetchedData.filter((data) => {
-          if (!data.comment) return -1;
-          return (
-            data.comment.toUpperCase().indexOf(inputSearch.toUpperCase()) > -1
-          );
-        });
-        console.log("filtered: ", filteredData)
-        setMainData(filteredData);
-        setIsFromSearch(true)
-      } catch (e) {}
+
+    if (inputSearch === "") {
+      navigate("/home/semua-koleksi");
+      setIsFromSearch(false);
     }
+    if (!params.tag) {
+      setIsFromSearch(true)
+      navigate("/home/semua-koleksi");
+      setTimeout(() => {
+        fetchData();
+      }, 1000);
+    } else fetchData();
+  };
+
+  const fetchData = async () => {
+    try {
+      setMainData([]);
+      const q = query(
+        collection(db, "comments"),
+        where("title", "==", inputSearch)
+      );
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+      });
+    } catch (e) {}
   };
 
   const handleSignIn = () => {
@@ -1271,7 +1259,6 @@ export const Content = ({ text, commentsData }) => {
               Jangan lupa untuk membagikan tautan ke teman-teman Anda!!
             </Text>
           </Text>
-    
 
           {user && commented ? (
             <>
