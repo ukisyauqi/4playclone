@@ -1240,18 +1240,21 @@ export const Content = ({ text, commentsData }) => {
     params: {},
   };
   useEffect(() => {
-    if (!banner.current.firstChild) {
-      const conf = document.createElement("script");
-      const script = document.createElement("script");
-      script.type = "text/javascript";
-      script.src = `//www.topdisplayformat.com/26507da9a27a8f369127a371abf7994e/invoke.js`;
-      conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
-
-      if (banner.current) {
-        banner.current.append(conf);
-        banner.current.append(script);
+    setTimeout(() => {
+      if (!banner.current.firstChild) {
+        const conf = document.createElement("script");
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `//www.topdisplayformat.com/26507da9a27a8f369127a371abf7994e/invoke.js`;
+        conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
+  
+        if (banner.current) {
+          banner.current.append(conf);
+          banner.current.append(script);
+        }
       }
-    }
+    }, 5000);
+    
   }, []);
 
   return (
