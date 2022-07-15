@@ -1230,6 +1230,30 @@ export const Content = ({ text, commentsData }) => {
     return () => {};
   }, [commentsData, user]);
 
+  const banner = useRef();
+
+  const atOptions = {
+    key: "26507da9a27a8f369127a371abf7994e",
+    format: "iframe",
+    height: 90,
+    width: 728,
+    params: {},
+  };
+  useEffect(() => {
+    if (!banner.current.firstChild) {
+      const conf = document.createElement("script");
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = `//www.topdisplayformat.com/26507da9a27a8f369127a371abf7994e/invoke.js`;
+      conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
+
+      if (banner.current) {
+        banner.current.append(conf);
+        banner.current.append(script);
+      }
+    }
+  }, []);
+
   return (
     <>
       {data && (
@@ -1260,7 +1284,7 @@ export const Content = ({ text, commentsData }) => {
             </Text>
           </Text>
 
-          {(user && commented) ? (
+          {user && commented ? (
             <>
               <Box borderLeft="2px solid #4AA84A" roundedLeft="md" p={2} my={6}>
                 <Text fontWeight="bold" fontSize="sm">
@@ -1275,7 +1299,7 @@ export const Content = ({ text, commentsData }) => {
                 ))}
               </Box>
               <Center w="full" h="90px">
-                <AdsBannerLandscap />
+                <div ref={banner}></div>
               </Center>
             </>
           ) : (
@@ -1295,7 +1319,7 @@ export const Content = ({ text, commentsData }) => {
                   </Text>
                 </Box>
                 <Center w="full" h="90px">
-                  <AdsBannerLandscap />
+                  <div ref={banner}></div>
                 </Center>
               </>
             </>
