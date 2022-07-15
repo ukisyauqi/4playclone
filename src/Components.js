@@ -835,7 +835,7 @@ export const Navbar = (props) => {
       setIsFromSearch(false);
     }
     if (!params.tag) {
-      setIsFromSearch(true)
+      setIsFromSearch(true);
       navigate("/home/semua-koleksi");
       setTimeout(() => {
         fetchData();
@@ -1260,7 +1260,7 @@ export const Content = ({ text, commentsData }) => {
             </Text>
           </Text>
 
-          {user && commented ? (
+          {(user && commented) ? (
             <>
               <Box borderLeft="2px solid #4AA84A" roundedLeft="md" p={2} my={6}>
                 <Text fontWeight="bold" fontSize="sm">
@@ -1274,6 +1274,9 @@ export const Content = ({ text, commentsData }) => {
                   </div>
                 ))}
               </Box>
+              <Center w="full" h="90px">
+                <AdsBannerLandscap />
+              </Center>
             </>
           ) : (
             <>
@@ -1291,30 +1294,12 @@ export const Content = ({ text, commentsData }) => {
                     konten belum terbuka.
                   </Text>
                 </Box>
+                <Center w="full" h="90px">
+                  <AdsBannerLandscap />
+                </Center>
               </>
             </>
           )}
-          <Box
-            borderLeft="2px solid #4AA84A"
-            roundedLeft="md"
-            p={2}
-            my={6}
-            display="none"
-          >
-            <Text fontWeight="bold" fontSize="sm">
-              Link Download
-            </Text>
-            {data.link_download.map((url, i) => (
-              <div key={i}>
-                <Link fontSize="sm" color="#FF0080">
-                  {url}
-                </Link>
-              </div>
-            ))}
-          </Box>
-          <Center w="full" h="90px">
-            <AdsBannerLandscap />
-          </Center>
         </>
       )}
     </>
