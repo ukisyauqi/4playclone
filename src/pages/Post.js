@@ -112,8 +112,8 @@ export default function Post() {
                   username={mainData[0].ownUsername}
                   photoURL={mainData[0].photoURL}
                 />
-                <Box ml={3}>
-                  <Text fontSize="sm" fontWeight="bold" position="relative" top={["-70px","-70px","0px",]} left={["70px","70px","0px",]}>
+                <Box ml={[0,0,3]}>
+                  <Text fontSize="sm" fontWeight="bold" position="relative" top={["-70px","-70px","0px",]} left={["80px","80px","0px",]}>
                     {mainData[0].ownUsername}
                   </Text>
 
@@ -131,8 +131,6 @@ export default function Post() {
                   mb="-50px"
                   h="100px"
                   w="200px"
-                  ml="75px"
-                  pos="sticky"
                   top="20"
                   display={["block", "block", "none"]}
                 >

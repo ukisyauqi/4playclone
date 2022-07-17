@@ -22,8 +22,7 @@ export default function Home() {
         <GridItem
           colSpan={[2, 2, 1]}
           pb="30vh"
-          pr="20px"
-          pl={["20px", "20px", null]}
+          px={["0px", "20px", null]}
         >
           <Outlet />
         </GridItem>

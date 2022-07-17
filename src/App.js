@@ -27,7 +27,7 @@ function App() {
   }, [location]);
 
   return (
-    <Box>
+    <Box w="100vw" overflowX="hidden">
       <Navbar />
       <Box mt="50px">
         <Outlet />

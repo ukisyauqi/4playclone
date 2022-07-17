@@ -713,7 +713,6 @@ export const HomeMain = () => {
                     <GridItem
                       colSpan={1}
                       rowSpan={2}
-                      pr="10px"
                       display="flex"
                       alignItems="center"
                     >
@@ -727,12 +726,16 @@ export const HomeMain = () => {
                       <Text>{data.title}</Text>
                     </GridItem>
                     <GridItem colSpan={1} rowSpan={1}>
-                      <Flex color="gray">
+                      <Flex color="gray" alignItems="center">
+                        <Flex ml="auto" display={["flex", "flex", "none"]} transform={["scale(0.9)"]}>
+                          {data.tag1 && <ItemCommentTag text={data.tag1} />}
+                          {data.tag2 && <ItemCommentTag text={data.tag2} />}
+                        </Flex>
                         <BsFillReplyFill />
-                        <Text fontSize="sm" ml="2px" fontWeight="medium">
+                        <Text fontSize={["x-small","sm","sm"]} ml="2px" fontWeight="medium">
                           {data.cUsername || data.ownUsername}
                         </Text>
-                        <Text fontSize="sm" ml="5px" color="gray">
+                        <Text fontSize={["x-small","sm","sm"]} ml="5px" color="gray" noOfLines={1}>
                           {data.timeStamp && (
                             <ConvertedTime
                               timeStamp={data.timeStamp}
@@ -743,7 +746,7 @@ export const HomeMain = () => {
                       </Flex>
                     </GridItem>
                   </Grid>
-                  <Flex ml="auto">
+                  <Flex ml="auto" display={["none", "none", "flex"]}>
                     {data.tag1 && <ItemCommentTag text={data.tag1} />}
                     {data.tag2 && <ItemCommentTag text={data.tag2} />}
                   </Flex>
@@ -903,7 +906,7 @@ export const Navbar = (props) => {
 
   return (
     <Center
-      w="calc(100vw - 17px)"
+      w="100vw"
       boxShadow="lg"
       {...props}
       position="fixed"
@@ -912,11 +915,7 @@ export const Navbar = (props) => {
       bg="#F7F7F7"
       px="30px"
     >
-      <Flex
-        w="1100px"
-        h="50px"
-        display={["none", "none", "flex"]}
-      >
+      <Flex w="1100px" h="50px" display={["none", "none", "flex"]}>
         <HStack
           spacing={0}
           _hover={{ cursor: "pointer" }}
@@ -1167,11 +1166,11 @@ export const ArticleComment = ({ data, key }) => {
         photoURL={data.cPhotoURL}
       />
       <Box maxW="760px" ml={3}>
-        <Flex>
+        <Flex alignItems="center">
           <Text fontSize="sm" fontWeight="bold" mr={2}>
             {data.cUsername}
           </Text>
-          <Text fontSize="sm" color="gray">
+          <Text fontSize={["xs","sm","sm"]} color="gray" noOfLines={1}>
             {data.timeStamp && (
               <ConvertedTime
                 timeStamp={data.timeStamp}
