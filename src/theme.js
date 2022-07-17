@@ -20,9 +20,16 @@ export const theme = extendTheme({
     Button: {
       baseStyle: {
         _hover: {
-          color: "#e85578"
-        }
-      }
-    }
-  }
+          color: "#e85578",
+        },
+      },
+    },
+  },
+  breakpoints: {
+    sm: "750px",
+    md: "1000px",
+    lg: "1300px",
+    xl: "1200px",
+    "2xl": "1536px",
+  },
 });

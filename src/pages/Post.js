@@ -73,66 +73,69 @@ export default function Post() {
     <>
       {mainData.length !== 0 && (
         <>
-          <>
-            <Center h="140px" bg={mainData[0].color || "#FF0080"}>
-              <Box>
-                <Center>
-                  <Tag size="sm" h="10px" variant="subtle" bg={"white"}>
+          <Center h="140px" bg={mainData[0].color || "#FF0080"}>
+            <Box>
+              <Center>
+                <Tag size="sm" h="10px" variant="subtle" bg={"white"}>
+                  <TagLabel ml={1} color={mainData[0].color}>
+                    {mainData[0].tag1}
+                  </TagLabel>
+                </Tag>
+                {mainData[0].tag2 && (
+                  <Tag size="sm" h="10px" variant="subtle" bg={"white"} ml={1}>
                     <TagLabel ml={1} color={mainData[0].color}>
-                      {mainData[0].tag1}
+                      {mainData[0].tag2}
                     </TagLabel>
                   </Tag>
-                  {mainData[0].tag2 && (
-                    <Tag
-                      size="sm"
-                      h="10px"
-                      variant="subtle"
-                      bg={"white"}
-                      ml={1}
-                    >
-                      <TagLabel ml={1} color={mainData[0].color}>
-                        {mainData[0].tag2}
-                      </TagLabel>
-                    </Tag>
-                  )}
-                </Center>
-                <Text color="white" fontSize="3xl" mt={1} align="center">
-                  {mainData[0].title}
-                </Text>
-              </Box>
-            </Center>
-          </>
+                )}
+              </Center>
+              <Text color="white" fontSize="3xl" mt={1} align="center">
+                {mainData[0].title}
+              </Text>
+            </Box>
+          </Center>
 
           <Center>
-            <Center w="full" h="90px">
-              {/* <div dangerouslySetInnerHTML={createMarkupAdsLandscape()}></div> */}
+            <Center w="0px" transform={["scale(0.7)", "scale(1)", "scale(1)"]}>
               <AdsBannerLandscap />
             </Center>
           </Center>
-          <Flex justifyContent="center" mt="30px">
+          <Flex justifyContent={[null, null, "center"]} mt="30px" px="20px">
             <Box pb={10}>
-              <>
-                <Flex borderBottom="1px solid #ddd" pb="15px">
-                  <Avatar
-                    boxSize={70}
-                    username={mainData[0].ownUsername}
-                    photoURL={mainData[0].photoURL}
-                  />
-                  <Box w="760px" ml={3}>
-                    <Flex>
-                      <Text fontSize="sm" fontWeight="bold">
-                        {mainData[0].ownUsername}
-                      </Text>
-                    </Flex>
-                    <Box>
-                      <Content
-                        text={mainData[0].description}
-                        commentsData={mainData}
-                      />
-                    </Box>
+              <Flex borderBottom="1px solid #ddd" pb="15px">
+                <Avatar
+                  boxSize={70}
+                  username={mainData[0].ownUsername}
+                  photoURL={mainData[0].photoURL}
+                />
+                <Box ml={3}>
+                  <Flex>
+                    <Text fontSize="sm" fontWeight="bold">
+                      {mainData[0].ownUsername}
+                    </Text>
+                  </Flex>
+                  <Box>
+                    <Content
+                      text={mainData[0].description}
+                      commentsData={mainData}
+                    />
                   </Box>
-                </Flex>
-              </>
+                </Box>
+              </Flex>
+              <Center>
+                <Box
+                  mt="20px"
+                  mb="-50px"
+                  h="100px"
+                  w="200px"
+                  ml="75px"
+                  pos="sticky"
+                  top="20"
+                  display={["block", "block", "none"]}
+                >
+                  <CommentModal articleData={mainData[0]} />
+                </Box>
+              </Center>
 
               {mainData.length < 2 ? (
                 <Text>Belum Ada Komentar</Text>
@@ -144,7 +147,14 @@ export default function Post() {
                 ))
               )}
             </Box>
-            <Box h="100px" w="150px" ml="75px" pos="sticky" top="20">
+            <Box
+              h="100px"
+              maxW="150px"
+              ml="75px"
+              pos="sticky"
+              top="20"
+              display={["none", "none", "block"]}
+            >
               <CommentModal articleData={mainData[0]} />
             </Box>
           </Flex>

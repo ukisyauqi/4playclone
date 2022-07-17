@@ -45,6 +45,9 @@ import {
   Collapse,
   useToast,
   MenuDivider,
+  IconButton,
+  DrawerOverlay,
+  DrawerFooter,
 } from "@chakra-ui/react";
 
 import { BiLogOut, BiReply, BiSearchAlt2 } from "react-icons/bi";
@@ -77,6 +80,8 @@ import {
   where,
 } from "firebase/firestore";
 import { getTags, getTagsHead } from "./data/tags";
+import { FaHamburger } from "react-icons/fa";
+import { IoReorderThreeOutline } from "react-icons/io5";
 
 export const Avatar = ({ photoURL, boxSize, username, ...props }) => {
   const colors = ["#7BDFF2", "#B2F7EF", "#EFF7F6", "#F7D6E0", "#F2B5D4"];
@@ -516,37 +521,35 @@ export const HomeSidebar = () => {
   const headTags = getTagsHead();
   return (
     <>
-      <GridItem colSpan={1}>
-        <NewCollectionModal />
-        <VStack align="start" color="gray.500" mt="20px">
-          {headTags.map((tag, i) => (
-            <HStack key={i}>
-              {cloneElement(tag.icon, { color: "#1572A1" })}
-              <RouterNavLink
-                to={`/home/${tag.name}`}
-                style={({ isActive }) => {
-                  return {
-                    fontWeight: isActive ? "bold" : "normal",
-                  };
-                }}
-              >
-                <Text textTransform="capitalize" fontSize="sm">
-                  {tag.name.replaceAll("-", " ")}
-                </Text>
-              </RouterNavLink>
-            </HStack>
-          ))}
-        </VStack>
-        <VStack align="start" color="gray.400" mt="30px">
-          {tags.map((tag, i) => (
-            <TagLink tag={tag} key={i} />
-          ))}
-        </VStack>
-        <Box w="160px" h="600px" my="20px">
-          {/* <div dangerouslySetInnerHTML={createMarkuoAdsPotrait()}></div> */}
-          <AdsBannerPotrait />
-        </Box>
-      </GridItem>
+      <NewCollectionModal />
+      <VStack align="start" color="gray.500" mt="20px">
+        {headTags.map((tag, i) => (
+          <HStack key={i}>
+            {cloneElement(tag.icon, { color: "#1572A1" })}
+            <RouterNavLink
+              to={`/home/${tag.name}`}
+              style={({ isActive }) => {
+                return {
+                  fontWeight: isActive ? "bold" : "normal",
+                };
+              }}
+            >
+              <Text textTransform="capitalize" fontSize="sm">
+                {tag.name.replaceAll("-", " ")}
+              </Text>
+            </RouterNavLink>
+          </HStack>
+        ))}
+      </VStack>
+      <VStack align="start" color="gray.400" mt="30px">
+        {tags.map((tag, i) => (
+          <TagLink tag={tag} key={i} />
+        ))}
+      </VStack>
+      <Box w="160px" h="600px" my="20px">
+        {/* <div dangerouslySetInnerHTML={createMarkuoAdsPotrait()}></div> */}
+        <AdsBannerPotrait />
+      </Box>
     </>
   );
 };
@@ -619,8 +622,7 @@ const getApp = () => {
 
 export const HomeMain = () => {
   let params = useParams();
-  const { mainData, setMainData, isFromSearch, setIsFromSearch } =
-    useContext(AppContext);
+  const { mainData, setMainData, isFromSearch } = useContext(AppContext);
   // const [scrollPosition, setScrollPosition] = useState(0);
   const PrevAmountItemShowed = useRef;
 
@@ -685,71 +687,71 @@ export const HomeMain = () => {
 
   return (
     <>
-      <GridItem colSpan={1} pb="30vh">
-        {mainData.length === 0 ? (
-          <Text>Sepertinya tidak ada postingan disini</Text>
-        ) : (
-          <>
-            <Box w="full" h="90px">
-              {/* <div dangerouslySetInnerHTML={createMarkupAdsLandscape()} /> */}
+      {mainData.length === 0 ? (
+        <Text>Sepertinya tidak ada postingan disini</Text>
+      ) : (
+        <>
+          <Center>
+            <Center w="0px" transform={["scale(0.7)", "scale(1)", "scale(1)"]}>
               <AdsBannerLandscap />
-            </Box>
-            {mainData
-              .sort((a, b) => {
-                if (a.timeStamp === null || b.timeStamp === null) return 0;
-                return b.timeStamp.seconds - a.timeStamp.seconds;
-              })
-              .map((data, i) => (
-                <RouterLink to={`/post/${data.title}`} key={i}>
-                  <Flex
-                    my="5px"
-                    _hover={{ background: "gray.100", cursor: "pointer" }}
-                    rounded="lg"
-                    p="10px"
-                  >
-                    <Grid templateColumns="50px auto" templateRows="auto auto">
-                      <GridItem
-                        colSpan={1}
-                        rowSpan={2}
-                        pr="10px"
-                        display="flex"
-                        alignItems="center"
-                      >
-                        <Avatar
-                          username={data.cUsername || data.ownUsername}
-                          boxSize={40}
-                          photoURL={data.cPhotoURL}
-                        />
-                      </GridItem>
-                      <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
-                        <Text>{data.title}</Text>
-                      </GridItem>
-                      <GridItem colSpan={1} rowSpan={1}>
-                        <Flex color="gray">
-                          <BsFillReplyFill />
-                          <Text fontSize="sm" ml="2px" fontWeight="medium">
-                            {data.cUsername || data.ownUsername}
-                          </Text>
-                          <Text fontSize="sm" ml="5px" color="gray">
-                            {data.timeStamp && (
-                              <ConvertedTime
-                                timeStamp={data.timeStamp}
-                                isComment={data.cUsername}
-                              />
-                            )}
-                          </Text>
-                        </Flex>
-                      </GridItem>
-                    </Grid>
-                    <Spacer />
+            </Center>
+          </Center>
+          {mainData
+            .sort((a, b) => {
+              if (a.timeStamp === null || b.timeStamp === null) return 0;
+              return b.timeStamp.seconds - a.timeStamp.seconds;
+            })
+            .map((data, i) => (
+              <RouterLink to={`/post/${data.title}`} key={i}>
+                <Flex
+                  my="5px"
+                  _hover={{ background: "gray.100", cursor: "pointer" }}
+                  rounded="lg"
+                  p="10px"
+                >
+                  <Grid templateColumns="50px auto" templateRows="auto auto">
+                    <GridItem
+                      colSpan={1}
+                      rowSpan={2}
+                      pr="10px"
+                      display="flex"
+                      alignItems="center"
+                    >
+                      <Avatar
+                        username={data.cUsername || data.ownUsername}
+                        boxSize={40}
+                        photoURL={data.cPhotoURL}
+                      />
+                    </GridItem>
+                    <GridItem colSpan={1} rowSpan={1} fontWeight="semibold">
+                      <Text>{data.title}</Text>
+                    </GridItem>
+                    <GridItem colSpan={1} rowSpan={1}>
+                      <Flex color="gray">
+                        <BsFillReplyFill />
+                        <Text fontSize="sm" ml="2px" fontWeight="medium">
+                          {data.cUsername || data.ownUsername}
+                        </Text>
+                        <Text fontSize="sm" ml="5px" color="gray">
+                          {data.timeStamp && (
+                            <ConvertedTime
+                              timeStamp={data.timeStamp}
+                              isComment={data.cUsername}
+                            />
+                          )}
+                        </Text>
+                      </Flex>
+                    </GridItem>
+                  </Grid>
+                  <Flex ml="auto" bg="gray.100">
                     {data.tag1 && <ItemCommentTag text={data.tag1} />}
                     {data.tag2 && <ItemCommentTag text={data.tag2} />}
                   </Flex>
-                </RouterLink>
-              ))}
-          </>
-        )}
-      </GridItem>
+                </Flex>
+              </RouterLink>
+            ))}
+        </>
+      )}
     </>
   );
 };
@@ -891,6 +893,9 @@ export const Navbar = (props) => {
       });
   };
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = React.useRef();
+
   useEffect(() => {
     // eslint-disable-next-line no-eval
     eval(getApp());
@@ -905,8 +910,13 @@ export const Navbar = (props) => {
       top="0px"
       zIndex={99}
       bg="#F7F7F7"
+      px="30px"
     >
-      <Flex w="1100px" h="50px">
+      <Flex
+        w="1100px"
+        h="50px"
+        display={["none", "none", "flex"]}
+      >
         <HStack
           spacing={0}
           _hover={{ cursor: "pointer" }}
@@ -1001,6 +1011,120 @@ export const Navbar = (props) => {
           )}
         </HStack>
       </Flex>
+      <Flex
+        w="1100px"
+        h="50px"
+        bg={["blue.500", "red.500", "green.500"]}
+        display={["flex", "flex", "none"]}
+        alignItems="center"
+      >
+        <IconButton
+          ref={btnRef}
+          colorScheme="teal"
+          onClick={onOpen}
+          variant="unstyled"
+          icon={<IoReorderThreeOutline size={35} />}
+        />
+        <Center
+          w="full"
+          spacing={0}
+          _hover={{ cursor: "pointer" }}
+          onClick={() => {
+            navigate("/home/semua-koleksi");
+          }}
+        >
+          <Img
+            src="https://i.im.ge/2022/07/11/unU5KG.th.jpg"
+            h="45px"
+            position="relative"
+            top="-2px"
+          />
+          <Img src="https://i.im.ge/2022/07/13/uedB40.jpg" h="30px" />
+        </Center>
+        <Drawer
+          isOpen={isOpen}
+          placement="left"
+          onClose={onClose}
+          finalFocusRef={btnRef}
+        >
+          <DrawerOverlay />
+          <DrawerContent bg="#F7F7F7">
+            <DrawerCloseButton />
+            <DrawerHeader></DrawerHeader>
+
+            <DrawerBody>
+              <form>
+                <InputGroup mr={5} size="sm">
+                  <InputLeftElement
+                    pointerEvents="none"
+                    children={<BiSearchAlt2 />}
+                  />
+
+                  <Input
+                    type="text"
+                    placeholder="Kotak Pencarian"
+                    bg="gray.100"
+                    value={inputSearch}
+                    onChange={(e) => setInputSearch(e.target.value)}
+                    autoComplete="off"
+                  />
+                  <Input
+                    type="submit"
+                    onClick={handleSearch}
+                    visibility="hidden"
+                    position="absolute"
+                  />
+                </InputGroup>
+              </form>
+              {user ? (
+                <>
+                  <Flex w="full" color="gray.500" mt="20px" mb="10px">
+                    <Avatar
+                      username={user.displayName}
+                      photoURL={user.photoURL}
+                      boxSize={30}
+                    />
+                    <Text pl={2} fontWeight="semibold">
+                      {user.displayName || "user"}
+                    </Text>
+                  </Flex>
+
+                  <RouterLink to="/settings">
+                    <Flex w="full" color="gray.500">
+                      <Box pt="4px">
+                        <FiSettings />
+                      </Box>
+                      <Text pl={2} fontWeight="semibold">
+                        Profile Settings
+                      </Text>
+                    </Flex>
+                  </RouterLink>
+
+                  <Button onClick={handleLogout} variant="unstyled">
+                    <Flex w="full" color="gray.500">
+                      <Box pt="4px">
+                        <BiLogOut />
+                      </Box>
+                      <Text pl={2} fontWeight="semibold">
+                        Logout
+                      </Text>
+                    </Flex>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button onClick={handleSignIn} variant="link" my="20px">
+                    Sign In
+                  </Button>
+                </>
+              )}
+              <Box mt="10px">
+                <HomeSidebar />
+              </Box>
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </Flex>
     </Center>
   );
 };
@@ -1043,7 +1167,7 @@ export const ArticleComment = ({ data, key }) => {
         boxSize="70"
         photoURL={data.cPhotoURL}
       />
-      <Box w="760px" ml={3}>
+      <Box maxW="760px" ml={3}>
         <Flex>
           <Text fontSize="sm" fontWeight="bold" mr={2}>
             {data.cUsername}
@@ -1247,14 +1371,13 @@ export const Content = ({ text, commentsData }) => {
         script.type = "text/javascript";
         script.src = `//www.topdisplayformat.com/26507da9a27a8f369127a371abf7994e/invoke.js`;
         conf.innerHTML = `atOptions = ${JSON.stringify(atOptions)}`;
-  
+
         if (banner.current) {
           banner.current.append(conf);
           banner.current.append(script);
         }
       }
     }, 5000);
-    
   }, []);
 
   return (
@@ -1280,7 +1403,7 @@ export const Content = ({ text, commentsData }) => {
           <Text align="center" fontSize="sm">
             Download secara gratis di
             <PinkText text="Penyegar Harian" />- Forum yang didasarkan pada
-            diskusi tentang koleksi pribadi dan berbagi koleksi penyegar mata.{" "}
+            diskusi tentang koleksi pribadi dan berbagi koleksi penyegar mata.
             <br />
             <Text as="span" textDecoration="underline">
               Jangan lupa untuk membagikan tautan ke teman-teman Anda!!
@@ -1301,8 +1424,14 @@ export const Content = ({ text, commentsData }) => {
                   </div>
                 ))}
               </Box>
-              <Center w="full" h="90px">
-                <div ref={banner}></div>
+              <Center>
+                <Center
+                  w="0px"
+                  h="90px"
+                  transform={["scale(0.7)", "scale(1)", "scale(1)"]}
+                >
+                  <div ref={banner}></div>
+                </Center>
               </Center>
             </>
           ) : (
@@ -1321,8 +1450,14 @@ export const Content = ({ text, commentsData }) => {
                     konten belum terbuka.
                   </Text>
                 </Box>
-                <Center w="full" h="90px">
-                  <div ref={banner}></div>
+                <Center>
+                  <Center
+                    w="0px"
+                    h="90px"
+                    transform={["scale(0.7)", "scale(1)", "scale(1)"]}
+                  >
+                    <div ref={banner}></div>
+                  </Center>
                 </Center>
               </>
             </>

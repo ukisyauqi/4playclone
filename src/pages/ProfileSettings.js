@@ -99,7 +99,7 @@ export default function ProfileSettings() {
               </Text>
             </Box>
           </Flex>
-          <Box w="700px" mx="auto" mt={7}>
+          <Box maxW="700px" mx="auto" mt={7} px="20px">
             <Text fontSize="3xl" fontWeight="semibold">
               Account
             </Text>

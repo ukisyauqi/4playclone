@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { Box, Grid } from "@chakra-ui/react";
-import { HomeSidebar } from "../Components";
+import { Box, Grid, GridItem } from "@chakra-ui/react";
+import { HomeSidebar, NewCollectionModal } from "../Components";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 
 export default function Home() {
@@ -8,14 +8,25 @@ export default function Home() {
     <Box>
       <Grid
         m="auto"
-        w="1050px"
+        maxW="1050px"
         templateColumns="200px auto"
         gap="30px"
         minH="100vh"
         mt="70px"
       >
-        <HomeSidebar />
-        <Outlet />
+        <GridItem colSpan={[0, 0, 1]} pl="30px">
+        <Box display={["none", "none", "block"]}>
+          <HomeSidebar />
+          </Box>
+        </GridItem>
+        <GridItem
+          colSpan={[2, 2, 1]}
+          pb="30vh"
+          pr="20px"
+          pl={["20px", "20px", null]}
+        >
+          <Outlet />
+        </GridItem>
       </Grid>
     </Box>
   );
