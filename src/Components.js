@@ -743,7 +743,7 @@ export const HomeMain = () => {
                       </Flex>
                     </GridItem>
                   </Grid>
-                  <Flex ml="auto" bg="gray.100">
+                  <Flex ml="auto">
                     {data.tag1 && <ItemCommentTag text={data.tag1} />}
                     {data.tag2 && <ItemCommentTag text={data.tag2} />}
                   </Flex>
@@ -1014,7 +1014,6 @@ export const Navbar = (props) => {
       <Flex
         w="1100px"
         h="50px"
-        bg={["blue.500", "red.500", "green.500"]}
         display={["flex", "flex", "none"]}
         alignItems="center"
       >
