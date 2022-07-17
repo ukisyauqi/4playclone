@@ -256,8 +256,8 @@ export const NewCollectionModal = () => {
             blockScrollOnMount={false}
           >
             <DrawerContent
-              w="64vw"
-              ml="26vw"
+              w={["100vw", "100vw", "64vw"]}
+              ml={["0px", "0px", "26vw"]}
               roundedTop="md"
               border="2px solid #E45476"
               shadow="xl"
@@ -727,15 +727,28 @@ export const HomeMain = () => {
                     </GridItem>
                     <GridItem colSpan={1} rowSpan={1}>
                       <Flex color="gray" alignItems="center">
-                        <Flex ml="auto" display={["flex", "flex", "none"]} transform={["scale(0.9)"]}>
+                        <Flex
+                          ml="auto"
+                          display={["flex", "flex", "none"]}
+                          transform={["scale(0.9)"]}
+                        >
                           {data.tag1 && <ItemCommentTag text={data.tag1} />}
                           {data.tag2 && <ItemCommentTag text={data.tag2} />}
                         </Flex>
                         <BsFillReplyFill />
-                        <Text fontSize={["x-small","sm","sm"]} ml="2px" fontWeight="medium">
+                        <Text
+                          fontSize={["x-small", "sm", "sm"]}
+                          ml="2px"
+                          fontWeight="medium"
+                        >
                           {data.cUsername || data.ownUsername}
                         </Text>
-                        <Text fontSize={["x-small","sm","sm"]} ml="5px" color="gray" noOfLines={1}>
+                        <Text
+                          fontSize={["x-small", "sm", "sm"]}
+                          ml="5px"
+                          color="gray"
+                          noOfLines={1}
+                        >
                           {data.timeStamp && (
                             <ConvertedTime
                               timeStamp={data.timeStamp}
@@ -1170,7 +1183,7 @@ export const ArticleComment = ({ data, key }) => {
           <Text fontSize="sm" fontWeight="bold" mr={2}>
             {data.cUsername}
           </Text>
-          <Text fontSize={["xs","sm","sm"]} color="gray" noOfLines={1}>
+          <Text fontSize={["xs", "sm", "sm"]} color="gray" noOfLines={1}>
             {data.timeStamp && (
               <ConvertedTime
                 timeStamp={data.timeStamp}
@@ -1252,6 +1265,12 @@ export const CommentModal = ({ articleData }) => {
     return () => {};
   }, [isOpen]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      onOpen()
+    }, 500);
+  }, [onOpen]);
+
   return (
     <>
       <Button
@@ -1280,8 +1299,8 @@ export const CommentModal = ({ articleData }) => {
             blockScrollOnMount={false}
           >
             <DrawerContent
-              w="68vw"
-              ml="7vw"
+              w={["100vw", "100vw", "64vw"]}
+              ml={["0px", "0px", "20vw"]}
               roundedTop="md"
               border="2px solid #E45476"
               shadow="xl"
