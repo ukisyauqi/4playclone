@@ -667,8 +667,15 @@ export const HomeMain = () => {
       getDocs(q)
         .then((querySnapshot) => {
           setMainData([]);
+          const titles = [];
           querySnapshot.forEach((doc) => {
-            setMainData((prev) => [...prev, { docId: doc.id, ...doc.data() }]);
+            if (!titles.includes(doc.data().title)) {
+              setMainData((prev) => [
+                ...prev,
+                { docId: doc.id, ...doc.data() },
+              ]);
+            }
+            titles.push(doc.data().title);
           });
         })
         .catch((err) => {
@@ -1267,7 +1274,7 @@ export const CommentModal = ({ articleData }) => {
 
   useEffect(() => {
     setTimeout(() => {
-      onOpen()
+      onOpen();
     }, 500);
   }, [onOpen]);
 
